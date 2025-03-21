@@ -1,0 +1,102 @@
+import React, { useEffect, useState } from 'react';
+import MovieList from '../components/MovieList';
+import { fetchPopularMovies } from '../api/moviesApi';
+import { useNavigate } from 'react-router-dom';
+import { FaStar } from 'react-icons/fa';
+import Carousel from '../components/Carrousel'; 
+
+const Home = () => {
+  const [movies, setMovies] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadMovies = async () => {
+      const popularMovies = await fetchPopularMovies();
+      setMovies(popularMovies);
+    };
+
+    loadMovies();
+  }, []);
+
+  const handleMovieClick = (movie) => {
+    navigate(`/movie/${movie.id}`);
+  };
+
+  const topMovies = movies.slice(0, 5);
+
+  return (
+    <div className="home">
+      <div className="banner">
+        <Carousel movies={movies} />
+      </div>
+
+      <section className="intro">
+        <h2 className="intro-title">Bienvenido a Filmoteca</h2>
+        <div className="intro-grid">
+          <div className="intro-card">✔ Guarda tus favoritas</div>
+          <div className="intro-card">❤️ Recomendaciones personalizadas</div>
+          <div className="intro-card">✍️ Escribe reseñas</div>
+        </div>
+      </section>
+
+      <section className="reviews">
+        <h2 className="reviews-title">Reseñas de la aplicación</h2>
+        <div className="reviews-card">
+          <div className="reviews-stars">
+            {[...Array(5)].map((_, i) => <FaStar key={i} className="reviews-star" />)}
+          </div>
+          <p>Me encanta esta aplicación, tiene todas mis películas favoritas y la interfaz es increíble. ¡Recomendada!</p>
+        </div>
+      </section>
+
+      <MovieList movies={topMovies} onMovieSelect={handleMovieClick} title="Tus Top 5 Películas" />
+
+      <br /><br />
+
+      <footer className="footer">
+        <div className="footer-content">
+
+          <div className="footer-section footer-links">
+            <h3 className="footer-title">Enlaces de Interés</h3>
+            <ul>
+              <li><a href="/about" className="footer-link">Sobre Nosotros</a></li>
+              <li><a href="/contact" className="footer-link">Contacto</a></li>
+              <li><a href="/privacy" className="footer-link">Política de Privacidad</a></li>
+              <li><a href="/terms" className="footer-link">Condiciones de Uso</a></li>
+              <li><a href="/legal" className="footer-link">Aviso Legal</a></li>
+            </ul>
+          </div>
+
+          <div className="footer-section footer-social">
+            <h3 className="footer-title">Síguenos</h3>
+            <div className="footer-socials">
+              <a href="#" className="social-link">
+                <img src="/assets/fe--facebook.svg" className="social-icon" alt="Facebook" />
+              </a>
+              <a href="#" className="social-link">
+                <img src="/assets/mdi--twitter.svg" className="social-icon" alt="Twitter" />
+              </a>
+              <a href="#" className="social-link">
+                <img src="/assets/ri--instagram-fill.svg" className="social-icon" alt="Instagram" />
+              </a>
+            </div>
+          </div>
+
+          <div className="footer-section footer-contact">
+            <h3 className="footer-title">Contacto</h3>
+            <p className="footer-text">Correo: contacto@filmoteca.com</p>
+            <p className="footer-text">Teléfono: +34 912 345 678</p>
+            <p className="footer-text">Dirección: Calle Ejemplo 123, Madrid, España</p>
+          </div>
+        </div>
+
+        <div className="footer-bottom">
+          <p className="footer-text small-text">© 2025 Filmoteca. Todos los derechos reservados.</p>
+        </div>
+      </footer>
+
+    </div>
+  );
+};
+
+export default Home;
