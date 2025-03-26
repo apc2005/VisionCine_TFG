@@ -252,29 +252,45 @@ h1 {
 }
 
 .intro {
-  padding: 2rem;
+  display: flex;
+  flex-direction: column; 
+  align-items: center; 
   text-align: center;
+  margin-top: 30px; 
 }
 
 .intro-title {
-  font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
+  font-size: 2em;
+  margin-bottom: 20px; 
 }
 
 .intro-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: repeat(2, 1fr); 
+  grid-gap: 20px; 
+  width: 100%;
+  max-width: 800px; 
 }
+
 
 .intro-card {
   background-color: #2d2d2d;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  font-size: 1rem;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
+
+.intro-card img {
+  max-width: 50px; 
+  margin-bottom: 10px; 
+}
+
+
 
 .reviews {
   padding: 2rem;

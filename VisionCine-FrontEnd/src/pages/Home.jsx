@@ -20,7 +20,8 @@ const Home = () => {
 
   const handleMovieClick = (movie) => {
     navigate(`/movie/${movie.id}`);
-  };
+};
+
 
   const topMovies = movies.slice(0, 5);
 
@@ -31,11 +32,12 @@ const Home = () => {
       </div>
 
       <section className="intro">
-        <h2 className="intro-title">Bienvenido a Filmoteca</h2>
+        <h2 className="intro-title">Bienvenido a VisionCine</h2>
         <div className="intro-grid">
-          <div className="intro-card">✔ Guarda tus favoritas</div>
-          <div className="intro-card">❤️ Recomendaciones personalizadas</div>
-          <div className="intro-card">✍️ Escribe reseñas</div>
+          <div className="intro-card"> <img src='\assets\jam--write-f.svg'/>Llevar un registro de todas las películas que has visto (o empezar desde el día que te unes).</div>
+          <div className="intro-card"> <img src='\assets\material-symbols--share.svg'/>Escribir y compartir críticas, y seguir a tus amigos y demás usuarios para leer las suyas.</div>
+          <div className="intro-card"> <img src='\assets\mdi--heart.svg'/>Mostrar tu apoyo a tus películas, listas y críticas favoritas con un "me gusta"</div>
+          <div className="intro-card">  <img src='\assets\ic--baseline-reviews.svg'/>Crear listas personalizadas de películas y llevar un registro de las que aún te falta por ver.</div>
         </div>
       </section>
 
@@ -84,14 +86,14 @@ const Home = () => {
 
           <div className="footer-section footer-contact">
             <h3 className="footer-title">Contacto</h3>
-            <p className="footer-text">Correo: contacto@filmoteca.com</p>
+            <p className="footer-text">Correo: contacto@visioncine.com</p>
             <p className="footer-text">Teléfono: +34 912 345 678</p>
-            <p className="footer-text">Dirección: Calle Ejemplo 123, Madrid, España</p>
+            <p className="footer-text">Dirección: Calle Ejemplo 123, Sevilla, España</p>
           </div>
         </div>
 
         <div className="footer-bottom">
-          <p className="footer-text small-text">© 2025 Filmoteca. Todos los derechos reservados.</p>
+          <p className="footer-text small-text">© 2025 Visioncine. Todos los derechos reservados.</p>
         </div>
       </footer>
 

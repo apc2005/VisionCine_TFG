@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('movie_id')->constrained()->onDelete('cascade');
             $table->integer('rating')->nullable();
             $table->boolean('watch_later')->default(false);
-            $table->timestamp('added_at')->nullable();  // Asegúrate de tener esta línea
+            $table->timestamp('added_at')->nullable();  
             $table->timestamps();
         });
     }

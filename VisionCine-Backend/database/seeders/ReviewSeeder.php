@@ -14,11 +14,9 @@ class ReviewSeeder extends Seeder
      */
     public function run()
     {
-        // Obtén algunos usuarios y películas
-        $user = User::first(); // O selecciona un usuario específico
-        $movie = Movie::first(); // O selecciona una película específica
+        $user = User::first(); 
+        $movie = Movie::first(); 
 
-        // Inserta reseñas
         Review::create([
             'movie_id' => $movie->id,
             'user_id' => $user->id,

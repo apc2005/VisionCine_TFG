@@ -1,7 +1,9 @@
 import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
 
-const API_KEY = 'd8078dcf3ad27f6764916fc8b4496c95';  
-const BASE_URL = 'https://api.themoviedb.org/3';  
+const API_KEY = 'd8078dcf3ad27f6764916fc8b4496c95';
+const BASE_URL = 'https://api.themoviedb.org/3';
+
 
 export const searchMovies = async (query) => {
   try {
@@ -19,6 +21,18 @@ export const searchMovies = async (query) => {
   }
 };
 
+export const useSearchMovies = (query) => {
+  return useQuery(
+    ['searchMovies', query],  
+    () => searchMovies(query), 
+    {
+      enabled: !!query,        
+      staleTime: 1000 * 60 * 5, 
+    }
+  );
+};
+
+
 export const fetchPopularMovies = async () => {
   try {
     const response = await axios.get(`${BASE_URL}/movie/popular`, {
@@ -29,10 +43,19 @@ export const fetchPopularMovies = async () => {
     });
     return response.data.results;
   } catch (error) {
-    console.error('Error al obtener películas populares:', error);
+    console.error('Error al obtener películas populares:', error.response ? error.response.data : error);
     return [];
   }
 };
+
+
+export const usePopularMovies = () => {
+  return useQuery('popularMovies', fetchPopularMovies, {
+    staleTime: 1000 * 60 * 10, 
+    refetchOnWindowFocus: false, 
+  });
+};
+
 
 export const fetchMovieDetails = async (id) => {
   try {
@@ -42,9 +65,21 @@ export const fetchMovieDetails = async (id) => {
         language: 'es-ES',
       },
     });
-    return response.data;  
+    return response.data;
   } catch (error) {
     console.error('Error al obtener los detalles de la película:', error);
     return null;
   }
+};
+
+
+export const useMovieDetails = (id) => {
+  return useQuery(
+    ['movieDetails', id],        
+    () => fetchMovieDetails(id), 
+    {
+      enabled: !!id,            
+      staleTime: 1000 * 60 * 10,  
+    }
+  );
 };
