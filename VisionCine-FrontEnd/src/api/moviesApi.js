@@ -1,16 +1,15 @@
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 
-const API_KEY = 'd8078dcf3ad27f6764916fc8b4496c95';
-const BASE_URL = 'https://api.themoviedb.org/3';
-
+const API_KEY = import.meta.env.VITE_API_KEY;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export const searchMovies = async (query) => {
   try {
     const response = await axios.get(`${BASE_URL}/search/movie`, {
       params: {
         api_key: API_KEY,
-        query: query,
+        query,
         language: 'es-ES',
       },
     });
@@ -22,16 +21,10 @@ export const searchMovies = async (query) => {
 };
 
 export const useSearchMovies = (query) => {
-  return useQuery(
-    ['searchMovies', query],  
-    () => searchMovies(query), 
-    {
-      enabled: !!query,        
-      staleTime: 1000 * 60 * 5, 
-    }
-  );
+  return useQuery(['searchMovies', query], () => searchMovies(query), {
+    enabled: !!query,
+  });
 };
-
 
 export const fetchPopularMovies = async () => {
   try {
@@ -48,14 +41,9 @@ export const fetchPopularMovies = async () => {
   }
 };
 
-
 export const usePopularMovies = () => {
-  return useQuery('popularMovies', fetchPopularMovies, {
-    staleTime: 1000 * 60 * 10, 
-    refetchOnWindowFocus: false, 
-  });
+  return useQuery('popularMovies', fetchPopularMovies);
 };
-
 
 export const fetchMovieDetails = async (id) => {
   try {
@@ -72,14 +60,8 @@ export const fetchMovieDetails = async (id) => {
   }
 };
 
-
 export const useMovieDetails = (id) => {
-  return useQuery(
-    ['movieDetails', id],        
-    () => fetchMovieDetails(id), 
-    {
-      enabled: !!id,            
-      staleTime: 1000 * 60 * 10,  
-    }
-  );
+  return useQuery(['movieDetails', id], () => fetchMovieDetails(id), {
+    enabled: !!id,
+  });
 };

@@ -1,66 +1,72 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useRef, useEffect } from 'react';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import MovieList from './MovieList';
 import MovieDetails from './MovieDetails';
 
+const API_KEY = import.meta.env.VITE_API_KEY;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 const fetchMovies = async (query) => {
-  const res = await fetch(`https://api.themoviedb.org/3/search/movie?query=${query}&api_key=d8078dcf3ad27f6764916fc8b4496c95`);
-  if (!res.ok) {
-    throw new Error('Error fetching movies');
-  }
+  if (!query) return [];
+  const res = await fetch(`${BASE_URL}/search/movie?query=${query}&api_key=${API_KEY}`);
+  if (!res.ok) throw new Error('Error al obtener películas');
   const data = await res.json();
   return data.results;
 };
 
-const fetchPopularMovies = async () => {
-  const res = await fetch('https://api.themoviedb.org/3/movie/popular?api_key=d8078dcf3ad27f6764916fc8b4496c95');
-  if (!res.ok) {
-    throw new Error('Error fetching popular movies');
-  }
+const fetchPopularMovies = async ({ pageParam = 1 }) => {
+  const res = await fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&page=${pageParam}`);
+  if (!res.ok) throw new Error('Error al obtener películas populares');
   const data = await res.json();
-  return data.results;
+  return { results: data.results, nextPage: data.page < data.total_pages ? data.page + 1 : null };
 };
 
 const SearchBar = () => {
   const [input, setInput] = useState('');
-  const [timeoutId, setTimeoutId] = useState(null);
   const [selectedMovie, setSelectedMovie] = useState(null);
+  const observerRef = useRef(null);
 
-  const { data: popularMovies, isLoading: isLoadingPopular } = useQuery({
-    queryKey: ['popularMovies'],
-    queryFn: fetchPopularMovies,
-    enabled: input.length === 0,
-  });
-
-  const { data, isLoading, error } = useQuery({
+  const { data: searchResults, isLoading, error } = useQuery({
     queryKey: ['movies', input],
     queryFn: () => fetchMovies(input),
     enabled: input.length >= 3,
     keepPreviousData: true,
   });
 
+  const {
+    data: popularMovies,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['popularMovies'],
+    queryFn: fetchPopularMovies,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    enabled: input.length < 3, 
+  });
+
   const handleInputChange = (event) => {
-    const query = event.target.value;
-    setInput(query);
-
-    if (query.trim() === '' || query.length < 3) {
-      return;
-    }
-
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-
-    const newTimeoutId = setTimeout(() => {
-      setInput(query);
-    }, 500);
-
-    setTimeoutId(newTimeoutId);
+    setInput(event.target.value);
+    setSelectedMovie(null); 
   };
 
   const handleMovieClick = (movie) => {
     setSelectedMovie(movie);
   };
+
+  useEffect(() => {
+    if (!observerRef.current || input.length >= 3) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 1 }
+    );
+    observer.observe(observerRef.current);
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, input]);
 
   return (
     <div>
@@ -74,32 +80,24 @@ const SearchBar = () => {
       </form>
 
       {isLoading && <p>Cargando búsqueda...</p>}
-      {error && <p>Error fetching data: {error.message}</p>}
+      {error && <p>Error: {error.message}</p>}
 
-      {data && data.length > 0 && !selectedMovie && (
-        <MovieList
-          movies={data}
-          onMovieSelect={handleMovieClick}
-          title="Películas encontradas"
-        />
+      {!selectedMovie && input.length >= 3 && searchResults?.length > 0 && (
+        <MovieList movies={searchResults} onMovieSelect={handleMovieClick} title="Resultados de búsqueda" />
       )}
 
-      {isLoadingPopular && <p>Cargando películas populares...</p>}
-
-      {popularMovies && popularMovies.length > 0 && !selectedMovie && (
-        <MovieList
-          movies={popularMovies}
-          onMovieSelect={handleMovieClick}
-          title="Películas populares"
-        />
+      {!selectedMovie && input.length < 3 && popularMovies && (
+        <>
+          {popularMovies.pages.map((page, index) => (
+            <MovieList key={index} movies={page.results} onMovieSelect={handleMovieClick} title="Películas populares" />
+          ))}
+          <div ref={observerRef} style={{ height: '20px', marginBottom: '20px' }} />
+          {isFetchingNextPage && <p>Cargando más películas...</p>}
+        </>
       )}
 
       {selectedMovie && (
-        <MovieDetails
-          movie={selectedMovie}
-          addToWatchLater={() => {}}
-          addToWatched={() => {}}
-        />
+        <MovieDetails movie={selectedMovie} addToWatchLater={() => {}} addToWatched={() => {}} />
       )}
     </div>
   );

@@ -1,5 +1,3 @@
-// src/hooks/useMovies.js
-
 import { useState, useCallback } from 'react';
 import { searchMovies, fetchPopularMovies } from '../api/moviesApi'; 
 

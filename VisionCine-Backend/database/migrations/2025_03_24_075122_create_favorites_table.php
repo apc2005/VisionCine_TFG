@@ -12,7 +12,6 @@ return new class extends Migration
     {
         Schema::create('favorites', function (Blueprint $table) {
             $table->id();
-            // Agregar las columnas user_id y movie_id
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('movie_id')->constrained()->onDelete('cascade');
             $table->timestamps();
