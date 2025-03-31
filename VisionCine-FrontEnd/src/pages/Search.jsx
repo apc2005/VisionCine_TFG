@@ -4,7 +4,7 @@ import MovieList from '../components/MovieList';
 
 const Search = ({ movies, onMovieSelect }) => {
   const [query, setQuery] = useState('');
-  const filteredMovies = movies.filter((movie) =>
+  const filteredMovies = movies?.filter((movie) =>
     movie.title.toLowerCase().includes(query.toLowerCase())
   );
 
