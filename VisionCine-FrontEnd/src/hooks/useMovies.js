@@ -1,27 +1,90 @@
-import { useState, useCallback } from 'react';
-import { searchMovies, fetchPopularMovies } from '../api/moviesApi'; 
+import { useState, useEffect, useRef } from 'react';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 
-export default function useMovies() {
-  const [movies, setMovies] = useState([]);
+const API_KEY = import.meta.env.VITE_API_KEY;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-  const fetchPopularMoviesHandler = useCallback(async () => {
-    try {
-      const results = await fetchPopularMovies(); 
-      setMovies(results);  
-    } catch (error) {
-      console.error("Error al obtener películas populares:", error);
-    }
-  }, []);
+const fetchMovies = async (query) => {
+  if (!query) return [];
+  const res = await fetch(`${BASE_URL}/search/movie?query=${query}&api_key=${API_KEY}`);
+  if (!res.ok) throw new Error('Error al obtener películas');
+  const data = await res.json();
+  return data.results.filter(movie =>
+    movie.title.toLowerCase().includes(query.toLowerCase())
+  );
+};
 
-  const fetchSearchMoviesHandler = useCallback(async (query) => {
-    if (!query) return fetchPopularMoviesHandler();  
-    try {
-      const results = await searchMovies(query);  
-      setMovies(results);  
-    } catch (error) {
-      console.error("Error al buscar películas:", error);
-    }
-  }, [fetchPopularMoviesHandler]);
+const fetchPopularMovies = async ({ pageParam = 1 }) => {
+  const res = await fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&page=${pageParam}`);
+  if (!res.ok) throw new Error('Error al obtener películas populares');
+  const data = await res.json();
+  return { results: data.results, nextPage: data.page < data.total_pages ? data.page + 1 : null };
+};
 
-  return { movies, fetchPopularMovies: fetchPopularMoviesHandler, fetchSearchMovies: fetchSearchMoviesHandler };
-}
+const useMovies = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryFromUrl = searchParams.get('q') || '';
+  const [input, setInput] = useState(queryFromUrl);
+  const [debouncedQuery, setDebouncedQuery] = useState(queryFromUrl);
+  const observerRef = useRef(null);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(input);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [input]);
+
+  useEffect(() => {
+    setSearchParams(debouncedQuery ? { q: debouncedQuery } : {});
+  }, [debouncedQuery, setSearchParams]);
+
+  const { data: searchResults, isLoading, error } = useQuery({
+    queryKey: ['movies', debouncedQuery],
+    queryFn: () => fetchMovies(debouncedQuery),
+    enabled: debouncedQuery.length >= 3,
+    keepPreviousData: true,
+  });
+
+  const {
+    data: popularMovies,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['popularMovies'],
+    queryFn: fetchPopularMovies,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    enabled: debouncedQuery.length < 3,
+  });
+
+  useEffect(() => {
+    if (!observerRef.current || debouncedQuery.length >= 3) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 1 }
+    );
+    observer.observe(observerRef.current);
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, debouncedQuery]);
+
+  return {
+    input,
+    setInput,
+    searchResults,
+    popularMovies,
+    isLoading,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    observerRef,
+  };
+};
+
+export default useMovies;

@@ -19,7 +19,7 @@ const MovieDetails = ({ movie, addToWatchLater, addToWatched }) => {
     const handleReviewSubmit = (e) => {
         e.preventDefault();
         setSubmitted(true);  
-        markAsWatched(); 
+        markAsWatched();  // Esto marca la película como vista
     };
 
     return (
