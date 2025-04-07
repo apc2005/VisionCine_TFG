@@ -3,27 +3,43 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Http;
 use App\Models\Movie;
 
 class MovieSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run()
     {
-        Movie::create([
-            'title' => 'Inception',
-            'synopsis' => 'A skilled thief is given a chance to have his criminal record erased if he can successfully perform an inception.',
-            'year' => 2010,
-            'poster_url' => 'https://example.com/inception.jpg',
+        $apiKey = env('TMDB_API_KEY');
+        $baseUrl = env('TMDB_BASE_URL');
+
+        $response = Http::get("$baseUrl/movie/popular", [
+            'api_key' => $apiKey,
+            'language' => 'en-US',
+            'page' => 1,
         ]);
 
-        Movie::create([
-            'title' => 'The Matrix',
-            'synopsis' => 'A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.',
-            'year' => 1999,
-            'poster_url' => 'https://example.com/matrix.jpg',
-        ]);
+        if ($response->successful()) {
+            $movies = $response->json()['results'];
+
+            foreach ($movies as $movie) {
+                Movie::create([
+                    'tmdb_id' => $movie['id'],
+                    'title' => $movie['title'],
+                    'overview' => $movie['overview'],
+                    'release_date' => $movie['release_date'],
+                    'runtime' => null, 
+                    'poster_path' => 'https://image.tmdb.org/t/p/w500' . $movie['poster_path'],
+                    'backdrop_path' => 'https://image.tmdb.org/t/p/w780' . $movie['backdrop_path'],
+                    'vote_average' => $movie['vote_average'],
+                    'vote_count' => $movie['vote_count'],
+                    'popularity' => $movie['popularity'],
+                ]);
+            }
+
+            $this->command->info('Películas populares insertadas correctamente.');
+        } else {
+            $this->command->error('Error al conectar con la API de TMDB.');
+        }
     }
 }

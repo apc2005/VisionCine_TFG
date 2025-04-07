@@ -6,6 +6,8 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
+    public const API = 'api';
+
     /**
      * Register any application services.
      */
