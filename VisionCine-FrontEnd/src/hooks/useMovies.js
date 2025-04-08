@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
+import debounce from 'lodash/debounce';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -29,11 +30,14 @@ const useMovies = () => {
   const [debouncedQuery, setDebouncedQuery] = useState(queryFromUrl);
   const observerRef = useRef(null);
 
+  // Usando debounce de lodash
+  const debouncedSearch = useRef(
+    debounce((value) => setDebouncedQuery(value), 500)
+  ).current;
+
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedQuery(input);
-    }, 500);
-    return () => clearTimeout(handler);
+    debouncedSearch(input);
+    return () => debouncedSearch.cancel();  // Limpia el debounce al desmontar
   }, [input]);
 
   useEffect(() => {

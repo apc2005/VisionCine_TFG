@@ -9,6 +9,7 @@ const Header = ({ watchLaterList, watchedList }) => {
         <ul>
           <li><Link to="/">Inicio</Link></li>
           <li><Link to="/search">Buscar</Link></li>
+          <li><Link to="/popular-movies">Películas Populares</Link></li>
           <li><Link to="/watch-later">Ver más tarde ({watchLaterList.length})</Link></li>
           <li><Link to="/watched">Vistas ({watchedList.length})</Link></li>
         </ul>

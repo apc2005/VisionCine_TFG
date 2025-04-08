@@ -1,0 +1,77 @@
+/* Estilos generales */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #121212; /* Fondo oscuro elegante */
+}
+
+.login-box {
+    background: #1e1e1e;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(255, 193, 7, 0.2);
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Título */
+.login-box h2 {
+    color: #ffc107;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+/* Campos de entrada */
+.login-box .p-inputtext {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: none;
+    background: #2a2a2a;
+    color: white;
+}
+
+.p-inputtext:focus {
+    outline: 2px solid #ffc107;
+}
+
+/* Colocar las etiquetas encima de los inputs */
+.p-field {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.p-field label {
+    color: #bbb;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Checkbox */
+.login-box .p-checkbox-label {
+    color: #bbb;
+    font-size: 0.9rem;
+}
+
+/* Botón */
+.login-box .p-button {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    background: #ffc107;
+    color: #121212;
+    font-weight: bold;
+    border: none;
+    transition: 0.3s;
+}
+
+.login-box .p-button:hover {
+    background: #e0a800;
+}

@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useState, useEffect } from 'react';
 import { Route, Routes, useNavigate, useSearchParams } from 'react-router-dom';
 import './App.css';
@@ -10,6 +9,9 @@ import MoviePage from './pages/MoviePage';
 import Header from './components/Header'; 
 import useMovieList from './hooks/useMovieList';
 import useSearchMovies from './hooks/useSearchMovies';
+import LoginPage from './pages/Login';
+import PopularMovies from './pages/PopularMovies';
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,8 +55,14 @@ function App() {
           <Route path="/watch-later" element={<WatchLater movies={watchLaterList} />} />
           <Route path="/watched" element={<Watched movies={watchedList} />} />
           <Route path="/search" element={<Search movies={movies} onMovieSelect={saveToWatchLater} handleSearchChange={handleSearchChange} />} />
-          <Route path="/" element={<Home movies={movies} />} />
-        </Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/search" element={<Search movies={movies} onMovieSelect={saveToWatchLater} />} />
+          <Route path="/popular-movies" element={<PopularMovies popularMovies={movies} onPopularMovieSelect={saveToWatchLater} />} />
+          <Route path="/" element={
+            <Home /> 
+        }
+      />
+    </Routes>
       </main>
     </div>
   );
