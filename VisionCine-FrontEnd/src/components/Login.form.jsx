@@ -1,30 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
-import { useNavigate } from "react-router-dom"; // Para la redirección
+import { useNavigate } from "react-router-dom";
 import "../components/Login.css";
 import axios from "axios";
+import { BASE_URL } from "../api/backendApi";
+import { AuthContext } from "../context/AuthContext";
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(null); // Para manejar errores
-  const navigate = useNavigate(); // Hook para redirigir
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const loginSubmit = async (event) => {
-    event.preventDefault(); // Evitar el comportamiento por defecto del formulario (que es un GET)
+    event.preventDefault();
     
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/login', {
-        email,
-        password
-      });
+      const payload = {
+        email: email.trim(),
+        password: password.trim()
+      };
+      
+      const response = await axios.post(`${BASE_URL}/login`, payload);
   
-      const token = response.data.token;
-      if (token) {
-        localStorage.setItem('token', token);
-        console.log('Login exitoso, token:', token);
-        navigate('/'); // Redirigir a la página principal después de iniciar sesión
+      if (response.data.access_token) {
+        console.log('Login exitoso', {email});
+        await login(response.data); // Pasar toda la respuesta al AuthContext
+        navigate('/');
+      } else {
+        console.log('Error: No se recibió token del servidor');
+        setError("Error en el inicio de sesión. Intente nuevamente.");
       }
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
@@ -35,7 +42,6 @@ const LoginForm = () => {
       }
     }
   };
-  
 
   return (
     <div className="login-container">
@@ -72,9 +78,14 @@ const LoginForm = () => {
           <Button type="submit" label="Ingresar" />
         </form>
         
-        {error && <p style={{ color: 'red' }}>{error}</p>} 
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+
+        <div className="register-link">
+          <p>¿No tienes una cuenta? <a href="/register">Regístrate aquí</a></p>
+        </div>
       </div>
     </div>
+
   );
 };
 

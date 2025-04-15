@@ -75,3 +75,22 @@
 .login-box .p-button:hover {
     background: #e0a800;
 }
+
+/* Enlace de registro */
+.register-link {
+    margin-top: 1.5rem;
+    text-align: center;
+    color: #bbb;
+}
+
+.register-link a {
+    color: #ffc107;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+    color: #e0a800;
+}
