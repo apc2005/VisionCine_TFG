@@ -1,18 +1,14 @@
-import { useState, useEffect } from 'react';
-import { searchMovies, fetchPopularMovies } from '../api/moviesApi';
+import { useQuery } from '@tanstack/react-query';
+import { searchMovies } from '../api/moviesApi';
 
 const useSearchMovies = (searchQuery) => {
-  const [movies, setMovies] = useState([]);
-
-  useEffect(() => {
-    if (searchQuery.trim()) {
-      searchMovies(searchQuery).then(setMovies);
-    } else {
-      fetchPopularMovies().then(setMovies);
-    }
-  }, [searchQuery]);
-
-  return movies;
+  return useQuery({
+    queryKey: ['searchMovies', searchQuery],
+    queryFn: () => searchMovies(searchQuery),
+    enabled: !!searchQuery?.trim(), 
+    staleTime: 5 * 60 * 1000, 
+    retry: 1, 
+  });
 };
 
 export default useSearchMovies;

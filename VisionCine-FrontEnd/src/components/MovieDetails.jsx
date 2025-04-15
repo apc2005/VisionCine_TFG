@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
+import { AuthContext } from '../context/AuthContext';
 import './MovieDetails.css'; 
 
 const MovieDetails = ({ movie, addToWatchLater, addToWatched }) => {
     const [comment, setComment] = useState('');
     const [rating, setRating] = useState(1);
     const [submitted, setSubmitted] = useState(false);
+    const [reviews, setReviews] = useState([]);
 
     const addMovieToWatchLater = () => {
         addToWatchLater(movie);
@@ -16,10 +18,54 @@ const MovieDetails = ({ movie, addToWatchLater, addToWatched }) => {
         alert(`La película "${movie.title}" se ha marcado como vista!`);
     };
 
-    const handleReviewSubmit = (e) => {
+    const { authToken } = useContext(AuthContext);
+
+    useEffect(() => {
+        const fetchReviews = async () => {
+            try {
+                const response = await fetch(`http://localhost:8000/api/reviews/movie/${movie.id}`);
+                if (!response.ok) throw new Error('Error al obtener reseñas');
+                const data = await response.json();
+                setReviews(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        };
+
+        fetchReviews();
+    }, [movie.id, submitted]);
+
+    const handleReviewSubmit = async (e) => {
         e.preventDefault();
-        setSubmitted(true);  
-        markAsWatched(); 
+        
+        try {
+            const response = await fetch('http://localhost:8000/api/reviews', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({
+                    movie_id: movie.id,
+                    rating: parseInt(rating),
+                    comment: comment
+                })
+            });
+
+            if (!response.ok) throw new Error('Error al enviar la reseña');
+            
+            await response.json(); // Solo verificamos que la respuesta es válida
+            setSubmitted(true);
+            markAsWatched();
+            alert('¡Reseña enviada con éxito!');
+            // Resetear el formulario después de enviar
+            setComment('');
+            setRating(1);
+            
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Debes iniciar sesión para enviar reseñas');
+        }
     };
 
     return (
@@ -72,6 +118,19 @@ const MovieDetails = ({ movie, addToWatchLater, addToWatched }) => {
                         <p><strong>Calificación:</strong> {rating} ⭐</p>
                     </div>
                 )}
+                <div className="existing-reviews">
+                    <h3>Reseñas de otros usuarios</h3>
+                    {reviews.length > 0 ? (
+                        reviews.map(review => (
+                            <div key={review.id} className="review-item">
+                                <p><strong>{review.user.name}:</strong> {review.comment}</p>
+                                <p>Calificación: {'⭐'.repeat(review.rating)}</p>
+                            </div>
+                        ))
+                    ) : (
+                        <p>No hay reseñas aún. ¡Sé el primero en opinar!</p>
+                    )}
+                </div>
             </section>
         </div>
     );

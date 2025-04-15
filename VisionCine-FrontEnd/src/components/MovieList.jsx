@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const MovieList = ({ movies, onMovieSelect, title }) => {
-  const defaultImage = '../../public/assets/noImage.png'; 
+  const defaultImage = '/assets/noImage.png'; 
 
   return (
     <div>
