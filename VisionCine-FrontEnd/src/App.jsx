@@ -31,7 +31,6 @@ function App() {
     setInput(event.target.value);
   };
 
-  // Hide Header only on login and register pages
   const hideHeaderPaths = ['/login', '/register'];
   const shouldHideHeader = hideHeaderPaths.includes(location.pathname);
 
