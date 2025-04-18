@@ -141,3 +141,31 @@
 .review-section button:focus {
   outline: none;
 }
+
+.existing-reviews {
+  margin-top: 30px;
+}
+
+.existing-reviews h3 {
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 10px;
+  font-size: 18px;
+  color: #333;
+}
+
+.review-item {
+  padding: 15px;
+  margin: 15px 0;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  border-left: 4px solid #007bff;
+}
+
+.review-item p {
+  margin: 5px 0;
+  color: #555;
+}
+
+.review-item strong {
+  color: #333;
+}
