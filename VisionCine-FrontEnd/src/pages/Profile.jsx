@@ -1,14 +1,19 @@
 import React, { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import MovieList from '../components/MovieList';
 import './Profile.css';
 import './ProfileUpload.css';
 import axios from 'axios';
 import { BASE_URL } from '../api/backendApi';
 
 const Profile = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, favorites } = useContext(AuthContext);
   const [profilePicture, setProfilePicture] = useState(null);
   const [preview, setPreview] = useState(user?.profile_picture || null);
+
+  if (!user) {
+    return <div>Loading...</div>;
+  }
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -31,7 +36,6 @@ const Profile = () => {
           'Authorization': `Bearer ${user.token}`
         }
       });
-      // TODO: Update user context with new profile picture instead of reload
       window.location.reload();
     } catch (error) {
       console.error('Error uploading profile picture:', error);
@@ -61,6 +65,10 @@ const Profile = () => {
           <p><strong>Email:</strong> {user?.email || 'No disponible'}</p>
           {user?.name && <p><strong>Nombre:</strong> {user.name}</p>}
         </div>
+      </div>
+
+      <div className="favorites-section">
+         <MovieList movies={Array.isArray(favorites) ? favorites : []} onMovieSelect={() => {}} title="Tus películas favoritas" small />
       </div>
 
       <div className="profile-actions">

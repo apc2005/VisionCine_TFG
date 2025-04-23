@@ -26,15 +26,27 @@
     border-radius: 8px;
   }
   
-  .movie-item h2 {
-    font-size: 18px;
-    color: #333;
-    margin: 10px 0 5px;
+  .movie-item h3 {
+    font-size: 16px;
+    color: #222;
+    margin: 8px 0 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    font-weight: 600;
+  }
+  
+  .movie-info {
+    padding: 0 5px;
+    margin-top: 5px;
   }
   
   .movie-item p {
-    font-size: 14px;
-    color: #777;
+    font-size: 13px;
+    color: #555;
+    text-align: center;
+    margin: 0;
   }
   
   .no-results {
@@ -44,3 +56,12 @@
     margin-top: 20px;
   }
   
+  .movie-list.small .movie-item {
+    width: 100px; 
+    margin: 5px;
+  }
+  
+  .movie-list.small .small-poster {
+    width: 80px;
+    height: auto;
+  }

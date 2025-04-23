@@ -22,17 +22,18 @@ api.interceptors.request.use(config => {
   return Promise.reject(error);
 });
 
+// Removed automatic logout on 401 to prevent user being logged out on page refreshes
 api.interceptors.response.use(response => {
   return response;
 }, error => {
-  if (error.response?.status === 401) {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
-  }
+  // Commented out automatic logout and redirect on 401
+  // if (error.response?.status === 401) {
+  //   localStorage.removeItem('token');
+  //   window.location.href = '/login';
+  // }
   return Promise.reject(error);
 });
 
-// Autenticación
 // Autenticación
 export const register = async (userData) => {
   try {
@@ -120,4 +121,35 @@ export const useMovieDetails = (id) => {
     queryFn: () => fetchMovieDetails(id),
     enabled: !!id
   });
+};
+
+// Favorites API calls
+export const fetchUserFavorites = async () => {
+  try {
+    const { data } = await api.get('/favorites');
+    return data;
+  } catch (error) {
+    console.error('Error al obtener películas favoritas:', error);
+    return [];
+  }
+};
+
+export const addFavorite = async (movieId) => {
+  try {
+    const { data } = await api.post('/favorites', { movie_id: movieId });
+    return data;
+  } catch (error) {
+    console.error('Error al agregar película favorita:', error);
+    throw error;
+  }
+};
+
+export const removeFavorite = async (movieId) => {
+  try {
+    const { data } = await api.delete(`/favorites/${movieId}`);
+    return data;
+  } catch (error) {
+    console.error('Error al eliminar película favorita:', error);
+    throw error;
+  }
 };

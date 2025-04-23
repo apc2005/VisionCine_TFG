@@ -60,4 +60,13 @@ class AuthController extends Controller
             'user' => $user,
         ]);
     }
+
+    public function verifyToken(Request $request)
+    {
+        $user = $request->user();
+        if ($user) {
+            return response()->json($user);
+        }
+        return response()->json(['message' => 'Unauthorized'], 401);
+    }
 }
