@@ -11,7 +11,6 @@ export const api = axios.create({
   }
 });
 
-// Configurar interceptors
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -22,19 +21,12 @@ api.interceptors.request.use(config => {
   return Promise.reject(error);
 });
 
-// Removed automatic logout on 401 to prevent user being logged out on page refreshes
 api.interceptors.response.use(response => {
   return response;
 }, error => {
-  // Commented out automatic logout and redirect on 401
-  // if (error.response?.status === 401) {
-  //   localStorage.removeItem('token');
-  //   window.location.href = '/login';
-  // }
   return Promise.reject(error);
 });
 
-// Autenticación
 export const register = async (userData) => {
   try {
     const { data } = await api.post('/register', userData);
@@ -65,7 +57,6 @@ export const login = async (credentials) => {
   }
 };
 
-// Películas
 export const fetchMovies = async () => {
   try {
     const { data } = await api.get('/movies');
@@ -96,7 +87,6 @@ export const fetchMovieDetails = async (id) => {
   }
 };
 
-// Reviews
 export const createReview = async (reviewData) => {
   try {
     const { data } = await api.post('/reviews', reviewData);
@@ -107,7 +97,6 @@ export const createReview = async (reviewData) => {
   }
 };
 
-// Hooks para React Query
 export const useMovies = () => {
   return useQuery({
     queryKey: ['movies'],
@@ -123,7 +112,6 @@ export const useMovieDetails = (id) => {
   });
 };
 
-// Favorites API calls
 export const fetchUserFavorites = async () => {
   try {
     const { data } = await api.get('/favorites');
@@ -150,6 +138,68 @@ export const removeFavorite = async (movieId) => {
     return data;
   } catch (error) {
     console.error('Error al eliminar película favorita:', error);
+    throw error;
+  }
+};
+
+
+export const fetchUserWatchLater = async () => {
+  try {
+    const { data } = await api.get('/watch-later');
+    return data;
+  } catch (error) {
+    console.error('Error al obtener lista de ver después:', error);
+    return [];
+  }
+};
+
+export const addToWatchLater = async (movieId) => {
+  try {
+    const { data } = await api.post('/watch-later', { movie_id: movieId });
+    return data;
+  } catch (error) {
+    console.error('Error al agregar a ver después:', error);
+    throw error;
+  }
+};
+
+export const removeFromWatchLater = async (movieId) => {
+  try {
+    const { data } = await api.delete(`/watch-later/${movieId}`);
+    return data;
+  } catch (error) {
+    console.error('Error al eliminar de ver después:', error);
+    throw error;
+  }
+};
+
+
+export const fetchUserWatched = async () => {
+  try {
+    const { data } = await api.get('/watched');
+    return data;
+  } catch (error) {
+    console.error('Error al obtener lista de vistas:', error);
+    return [];
+  }
+};
+
+export const addToWatched = async (movieId) => {
+  try {
+    const { data } = await api.post('/watched', { movie_id: movieId });
+    return data;
+  } catch (error) {
+    console.error('Error al marcar como vista:', error);
+    throw error;
+  }
+};
+
+export const removeFromWatched = async (movieId) => {
+  try {
+    const { data } = await api.delete(`/watched/${movieId}`);
+    return data;
+  } catch (error) {
+    console.error('Error al desmarcar como vista:', error);
     throw error;
   }
 };

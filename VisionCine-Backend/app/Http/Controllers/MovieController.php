@@ -16,8 +16,12 @@ class MovieController extends Controller
     // List all movies
     public function index()
     {
-        $movies = Movie::all();
-        return response()->json($movies);
+        try {
+            $movies = Movie::all();
+            return response()->json($movies);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error fetching movies', 'message' => $e->getMessage()], 500);
+        }
     }
 
     // Store a new movie (only admin)

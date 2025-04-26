@@ -1,23 +1,34 @@
 import React, { useState, useEffect, useContext } from 'react';
 import '../pages/MoviePage.css';
 import StarRating from './StarRating';
-import { fetchUserFavorites, addFavorite, removeFavorite } from '../api/backendApi';
+import { 
+  fetchUserFavorites, 
+  addFavorite, 
+  removeFavorite, 
+  addToWatchLater, 
+  removeFromWatchLater, 
+  addToWatched, 
+  removeFromWatched,
+  fetchUserWatchLater,
+  fetchUserWatched,
+  api
+} from '../api/backendApi';
 import { AuthContext } from '../context/AuthContext';
 
-const MovieDetails = ({ movie, addToWatchLater, addToWatched }) => {
+const MovieDetails = ({ movie }) => {
   const [comment, setComment] = useState('');
   const [rating, setRating] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isWatchLater, setIsWatchLater] = useState(false);
+  const [isWatched, setIsWatched] = useState(false);
   const { authToken, refreshFavorites } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/api/reviews/movie/${movie.id}`);
-        if (!response.ok) throw new Error('Error al obtener reseñas');
-        const data = await response.json();
+        const { data } = await api.get(`/reviews/movie/${movie.id}`);
         setReviews(data);
       } catch (error) {
         console.error('Error:', error);
@@ -36,52 +47,54 @@ const MovieDetails = ({ movie, addToWatchLater, addToWatched }) => {
       }
     };
 
+    const checkWatchLaterAndWatchedStatus = async () => {
+      if (!authToken) return;
+
+      try {
+        const watchLaterData = await fetchUserWatchLater();
+        setIsWatchLater(watchLaterData.some(item => item.movie_id === movie.id));
+
+        const watchedData = await fetchUserWatched();
+        setIsWatched(watchedData.some(item => item.movie_id === movie.id));
+      } catch (error) {
+        console.error('Error al comprobar estado de ver después y visto:', error);
+      }
+    };
+
     fetchReviews();
     fetchFavoriteStatus();
+    checkWatchLaterAndWatchedStatus();
   }, [movie.id, submitted, authToken]);
 
   const handleRatingChange = (newRating) => {
     setRating(newRating);
   };
 
-  const markAsWatched = () => {
-    addToWatched(movie);
-    alert(`La película "${movie.title}" se ha marcado como vista!`);
-  };
-
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:8000/api/reviews', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          movie_id: movie.id,
-          rating: rating,
-          comment: comment
-        })
+      const response = await api.post('/reviews', {
+        tmdb_id: movie.id,
+        rating: rating,
+        comment: comment
       });
 
-      if (!response.ok) throw new Error('Error al enviar la reseña');
+      if (!response) throw new Error('Error al enviar la reseña');
 
-      await response.json();
       setSubmitted(true);
-      markAsWatched();
+      handleMarkAsWatched();
       alert('¡Reseña enviada con éxito!');
       setComment('');
       setRating(1);
     } catch (error) {
       console.error('Error:', error);
-      alert('Debes iniciar sesión para enviar reseñas');
+      alert('Error al enviar la reseña');
     }
   };
 
-  async function toggleFavorite() {
-    const token = localStorage.getItem('token');
-    if (!token) {
+  const toggleFavorite = async () => {
+    if (!authToken) {
       alert('Debes iniciar sesión para marcar favoritos');
       return;
     }
@@ -102,20 +115,58 @@ const MovieDetails = ({ movie, addToWatchLater, addToWatched }) => {
         alert('Película agregada a favoritas');
       }
 
-
       if (typeof refreshFavorites === 'function') {
         refreshFavorites();
       }
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
-        alert(error.response.data.message);
-      } else if (error.message) {
-        alert(error.message);
-      } else {
-        alert('Error al actualizar favoritas');
-      }
+      console.error('Error al actualizar favoritas:', error);
+      alert('Error al actualizar favoritas');
     }
-  }
+  };
+
+  const handleAddToWatchLater = async () => {
+    if (!authToken) {
+      alert('Debes iniciar sesión para agregar a ver después');
+      return;
+    }
+
+    try {
+      if (isWatchLater) {
+        await removeFromWatchLater(movie.id);
+        setIsWatchLater(false);
+        alert('Película eliminada de ver después');
+      } else {
+        await addToWatchLater(movie.id);
+        setIsWatchLater(true);
+        alert('Película agregada a ver después');
+      }
+    } catch (error) {
+      console.error('Error al actualizar ver después:', error);
+      alert('Error al actualizar ver después');
+    }
+  };
+
+  const handleMarkAsWatched = async () => {
+    if (!authToken) {
+      alert('Debes iniciar sesión para marcar como vista');
+      return;
+    }
+
+    try {
+      if (isWatched) {
+        await removeFromWatched(movie.id);
+        setIsWatched(false);
+        alert('Película desmarcada como vista');
+      } else {
+        await addToWatched(movie.id);
+        setIsWatched(true);
+        alert('Película marcada como vista');
+      }
+    } catch (error) {
+      console.error('Error al actualizar visto:', error);
+      alert('Error al actualizar visto');
+    }
+  };
 
   return (
     <div className="movie-details">
@@ -130,8 +181,12 @@ const MovieDetails = ({ movie, addToWatchLater, addToWatched }) => {
       </button>
 
       <div className="actions">
-        <button onClick={() => addToWatchLater(movie)}>Agregar a ver más tarde</button>
-        <button onClick={markAsWatched}>Marcar como vista</button>
+        <button onClick={handleAddToWatchLater}>
+          {isWatchLater ? 'Quitar de ver después' : 'Agregar a ver después'}
+        </button>
+        <button onClick={handleMarkAsWatched}>
+          {isWatched ? 'Desmarcar como vista' : 'Marcar como vista'}
+        </button>
       </div>
 
       <section className="review-section">

@@ -13,7 +13,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if(token) {
-      // Fetch full user data on app load
       getProfileData()
         .then(userData => {
           setUser({ token, ...userData });
@@ -24,9 +23,6 @@ export const AuthProvider = ({ children }) => {
         })
         .catch(error => {
           console.error('Error fetching profile data:', error);
-          // Removed automatic token removal on error to prevent logout on page refresh
-          // localStorage.removeItem('token');
-          // setUser(null);
         });
     }
   }, []);
@@ -110,13 +106,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Helper to check if user is admin
+  const isAdmin = () => {
+    return user?.role === 'admin';
+  };
+
   return (
     <AuthContext.Provider value={{ 
-      user, login, logout, 
+      user, authToken: user?.token, login, logout, 
       favorites, refreshFavorites, 
       watchLater, refreshWatchLater, 
       watched, refreshWatched, 
-      reviews, refreshReviews 
+      reviews, refreshReviews,
+      isAdmin
     }}>
       {children}
     </AuthContext.Provider>

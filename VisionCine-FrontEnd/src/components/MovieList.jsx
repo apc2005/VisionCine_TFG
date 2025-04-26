@@ -11,8 +11,8 @@ const MovieList = ({ movies, onMovieSelect, title }) => {
         {movies.length === 0 ? (
           <p>No hay películas para mostrar</p>
         ) : (
-          movies.map((movie) => (
-            <div key={movie.id} className="movie-card" onClick={() => onMovieSelect(movie)}>
+          movies.map((movie, index) => (
+            <div key={`${movie.id}-${index}`} className="movie-card" onClick={() => onMovieSelect(movie)}>
               <Link to={`/movie/${movie.id}`}>
                 <img
                   src={movie.poster_path ? `https://image.tmdb.org/t/p/w200${movie.poster_path}` : defaultImage}
