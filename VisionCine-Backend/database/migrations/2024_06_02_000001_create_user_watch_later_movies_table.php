@@ -11,7 +11,7 @@ class CreateUserWatchLaterMoviesTable extends Migration
         Schema::create('user_watch_later_movies', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('movie_id');
+            $table->string('movie_id');
             $table->timestamps();
 
             $table->unique(['user_id', 'movie_id']);

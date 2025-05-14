@@ -17,7 +17,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Add role_id to users table
+
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('role_id')->nullable()->constrained('roles')->onDelete('set null');
         });

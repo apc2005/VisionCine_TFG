@@ -14,7 +14,7 @@ class CreateUserFavoriteMoviesTable extends Migration
         Schema::create('user_favorite_movies', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('movie_id'); // Assuming movie_id is a string (e.g., TMDB ID)
+            $table->string('movie_id'); 
             $table->timestamps();
 
             $table->unique(['user_id', 'movie_id']);

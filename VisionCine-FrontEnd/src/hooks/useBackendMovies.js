@@ -11,7 +11,6 @@ const useBackendMovies = () => {
   const [debouncedQuery, setDebouncedQuery] = useState(queryFromUrl);
   const observerRef = useRef(null);
 
-  // Usando debounce de lodash
   const debouncedSearch = useRef(
     debounce((value) => setDebouncedQuery(value), 500)
   ).current;
@@ -25,7 +24,6 @@ const useBackendMovies = () => {
     setSearchParams(debouncedQuery ? { q: debouncedQuery } : {});
   }, [debouncedQuery, setSearchParams]);
 
-  // Búsqueda de películas
   const { data: searchResults, isLoading, error } = useQuery({
     queryKey: ['movies', debouncedQuery],
     queryFn: () => searchMovies(debouncedQuery),
@@ -33,7 +31,6 @@ const useBackendMovies = () => {
     keepPreviousData: true,
   });
 
-  // Películas populares
   const { data: movies, isLoading: isLoadingMovies } = useQuery({
     queryKey: ['allMovies'],
     queryFn: fetchMovies,

@@ -8,21 +8,23 @@ use App\Http\Controllers\MovieController;
 use App\Http\Controllers\WatchLaterController;
 use App\Http\Controllers\WatchedController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Middleware\CheckAdminRole;
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::middleware('api')->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+});
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::get('/verify-token', [AuthController::class, 'verifyToken']);
 
-
     Route::get('/movies', [MovieController::class, 'index']);
     Route::get('/movies/{id}', [MovieController::class, 'show']);
-    Route::post('/movies', [MovieController::class, 'store'])->middleware('check.admin.role');
-    Route::put('/movies/{id}', [MovieController::class, 'update'])->middleware('check.admin.role');
-    Route::delete('/movies/{id}', [MovieController::class, 'destroy'])->middleware('check.admin.role');
-
+    Route::post('/movies', [MovieController::class, 'store'])->middleware(CheckAdminRole::class);
+    Route::put('/movies/{id}', [MovieController::class, 'update'])->middleware(CheckAdminRole::class);
+    Route::delete('/movies/{id}', [MovieController::class, 'destroy'])->middleware(CheckAdminRole::class);
 
     Route::get('/favorites', [FavoriteController::class, 'index']);
     Route::post('/favorites', [FavoriteController::class, 'store']);
@@ -38,5 +40,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/reviews', [ReviewController::class, 'index']);
     Route::post('/reviews', [ReviewController::class, 'store']);
-    Route::get('/reviews/movie/{id}', [ReviewController::class, 'getByMovie']);
+    Route::get('/reviews/movie/{tmdbId}', [ReviewController::class, 'getByMovie']);
 });

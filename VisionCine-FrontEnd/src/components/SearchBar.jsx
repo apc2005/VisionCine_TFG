@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import useMovies from '../hooks/useMovies';
 import MovieList from './MovieList';
-import MovieDetails from './MovieDetails';
-import './SearchBar.css';
+import '../styles/SearchBar.css';
 
 const SearchBar = () => {
   const {
@@ -18,10 +17,8 @@ const SearchBar = () => {
 
   const [tempInput, setTempInput] = useState('');
   const [selectedMovie, setSelectedMovie] = useState(null);
-  const [currentWord, setCurrentWord] = useState('película');
-  const [isAnimating, setIsAnimating] = useState(false);
-
   const words = ['película', 'serie', 'documental', 'programa'];
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
 
   const handleTempInputChange = (event) => {
     setTempInput(event.target.value);
@@ -34,18 +31,9 @@ const SearchBar = () => {
   };
 
   useEffect(() => {
-    let index = 0;
-
-    const changeWord = () => {
-      setIsAnimating(true);
-      setTimeout(() => {
-        index = (index + 1) % words.length;
-        setCurrentWord(words[index]);
-        setIsAnimating(false);
-      }, 3000);
-    };
-
-    const interval = setInterval(changeWord, 5000);
+    const interval = setInterval(() => {
+      setCurrentWordIndex((prevIndex) => (prevIndex + 1) % words.length);
+    }, 3000);
     return () => clearInterval(interval);
   }, []);
 
@@ -75,8 +63,8 @@ const SearchBar = () => {
       {!selectedMovie && input.length < 3 && !searchResults?.length && (
         <div className="no-results-message">
           <p className="fixed-text">Busca cualquier</p>
-          <div className={`rotating-text-wrapper ${isAnimating ? 'animating' : ''}`}>
-            {currentWord}
+          <div className="rotating-text-wrapper">
+            {words[currentWordIndex]}
           </div>
         </div>
       )}

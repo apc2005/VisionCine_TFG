@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\WatchLaterMovie;
 
 class WatchLaterController extends Controller
@@ -11,6 +12,10 @@ class WatchLaterController extends Controller
     public function index()
     {
         $user = Auth::user();
+        if (!$user) {
+            Log::warning('Unauthorized access attempt to WatchLaterController@index');
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
         $watchLater = WatchLaterMovie::where('user_id', $user->id)->get();
         return response()->json($watchLater);
     }
@@ -18,6 +23,10 @@ class WatchLaterController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
+        if (!$user) {
+            Log::warning('Unauthorized access attempt to WatchLaterController@store');
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
         $movieId = $request->input('movie_id');
 
         $exists = WatchLaterMovie::where('user_id', $user->id)->where('movie_id', $movieId)->exists();
@@ -36,6 +45,10 @@ class WatchLaterController extends Controller
     public function destroy($movieId)
     {
         $user = Auth::user();
+        if (!$user) {
+            Log::warning('Unauthorized access attempt to WatchLaterController@destroy');
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
 
         $watchLater = WatchLaterMovie::where('user_id', $user->id)->where('movie_id', $movieId)->first();
         if (!$watchLater) {

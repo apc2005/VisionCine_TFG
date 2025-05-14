@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
-import '../pages/MoviePage.css';
+import Swal from 'sweetalert2';
+import '../styles/MoviePage.css';
 import StarRating from './StarRating';
 import { 
   fetchUserFavorites, 
@@ -21,8 +22,8 @@ const MovieDetails = ({ movie }) => {
   const [submitted, setSubmitted] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isWatchLater, setIsWatchLater] = useState(false);
-  const [isWatched, setIsWatched] = useState(false);
+  const [isWatchLater, setIsWatchLater] = useState(null);
+  const [isWatched, setIsWatched] = useState(null);
   const { authToken, refreshFavorites } = useContext(AuthContext);
 
   useEffect(() => {
@@ -75,7 +76,7 @@ const MovieDetails = ({ movie }) => {
 
     try {
       const response = await api.post('/reviews', {
-        tmdb_id: movie.id,
+        tmdb_id: movie.tmdb_id,
         rating: rating,
         comment: comment
       });
@@ -84,18 +85,18 @@ const MovieDetails = ({ movie }) => {
 
       setSubmitted(true);
       handleMarkAsWatched();
-      alert('¡Reseña enviada con éxito!');
+      Swal.fire('¡Éxito!', 'Reseña enviada con éxito!', 'success');
       setComment('');
       setRating(1);
     } catch (error) {
       console.error('Error:', error);
-      alert('Error al enviar la reseña');
+      Swal.fire('Error', 'Error al enviar la reseña', 'error');
     }
   };
 
   const toggleFavorite = async () => {
     if (!authToken) {
-      alert('Debes iniciar sesión para marcar favoritos');
+      Swal.fire('Atención', 'Debes iniciar sesión para marcar favoritos', 'warning');
       return;
     }
 
@@ -103,16 +104,16 @@ const MovieDetails = ({ movie }) => {
       if (isFavorite) {
         await removeFavorite(movie.id);
         setIsFavorite(false);
-        alert('Película eliminada de favoritas');
+        Swal.fire('Éxito', 'Película eliminada de favoritas', 'success');
       } else {
         const favorites = await fetchUserFavorites();
         if (favorites.length >= 3) {
-          alert('Solo puedes tener hasta 3 películas favoritas');
+          Swal.fire('Atención', 'Solo puedes tener hasta 3 películas favoritas', 'warning');
           return;
         }
         await addFavorite(movie.id);
         setIsFavorite(true);
-        alert('Película agregada a favoritas');
+        Swal.fire('Éxito', 'Película agregada a favoritas', 'success');
       }
 
       if (typeof refreshFavorites === 'function') {
@@ -120,35 +121,41 @@ const MovieDetails = ({ movie }) => {
       }
     } catch (error) {
       console.error('Error al actualizar favoritas:', error);
-      alert('Error al actualizar favoritas');
+      Swal.fire('Error', 'Error al actualizar favoritas', 'error');
     }
   };
 
   const handleAddToWatchLater = async () => {
     if (!authToken) {
-      alert('Debes iniciar sesión para agregar a ver después');
+      Swal.fire('Atención', 'Debes iniciar sesión para agregar a ver después', 'warning');
       return;
     }
 
     try {
       if (isWatchLater) {
-        await removeFromWatchLater(movie.id);
+        await removeFromWatchLater(String(movie.id));
         setIsWatchLater(false);
-        alert('Película eliminada de ver después');
+        Swal.fire('Éxito', 'Película eliminada de ver después', 'success');
       } else {
-        await addToWatchLater(movie.id);
+        await addToWatchLater(String(movie.id));
         setIsWatchLater(true);
-        alert('Película agregada a ver después');
+        Swal.fire('Éxito', 'Película agregada a ver después', 'success');
       }
     } catch (error) {
       console.error('Error al actualizar ver después:', error);
-      alert('Error al actualizar ver después');
+      if (error.response && error.response.status === 400) {
+        // Manejar error 400 sin alertar al usuario
+        console.warn('La película ya está en tu lista de ver más tarde');
+        setIsWatchLater(true); // Sincronizar estado con backend
+      } else {
+        Swal.fire('Error', 'Error al actualizar ver después', 'error');
+      }
     }
   };
 
   const handleMarkAsWatched = async () => {
     if (!authToken) {
-      alert('Debes iniciar sesión para marcar como vista');
+      Swal.fire('Atención', 'Debes iniciar sesión para marcar como vista', 'warning');
       return;
     }
 
@@ -156,15 +163,15 @@ const MovieDetails = ({ movie }) => {
       if (isWatched) {
         await removeFromWatched(movie.id);
         setIsWatched(false);
-        alert('Película desmarcada como vista');
+        Swal.fire('Éxito', 'Película desmarcada como vista', 'success');
       } else {
         await addToWatched(movie.id);
         setIsWatched(true);
-        alert('Película marcada como vista');
+        Swal.fire('Éxito', 'Película marcada como vista', 'success');
       }
     } catch (error) {
       console.error('Error al actualizar visto:', error);
-      alert('Error al actualizar visto');
+      Swal.fire('Error', 'Error al actualizar visto', 'error');
     }
   };
 
@@ -181,12 +188,16 @@ const MovieDetails = ({ movie }) => {
       </button>
 
       <div className="actions">
-        <button onClick={handleAddToWatchLater}>
-          {isWatchLater ? 'Quitar de ver después' : 'Agregar a ver después'}
-        </button>
-        <button onClick={handleMarkAsWatched}>
-          {isWatched ? 'Desmarcar como vista' : 'Marcar como vista'}
-        </button>
+        {isWatchLater !== null && (
+          <button onClick={handleAddToWatchLater}>
+            {isWatchLater ? 'Quitar de ver después' : 'Agregar a ver después'}
+          </button>
+        )}
+        {isWatched !== null && (
+          <button onClick={handleMarkAsWatched}>
+            {isWatched ? 'Desmarcar como vista' : 'Marcar como vista'}
+          </button>
+        )}
       </div>
 
       <section className="review-section">

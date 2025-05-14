@@ -13,20 +13,13 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+'paths' => ['api/*', 'sanctum/csrf-cookie'], 
+'allowed_methods' => ['*'], 
 
-    'allowed_methods' => ['*'],
+'allowed_origins' => ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5179', 'http://localhost:5174'], // Incluye todas las URLs de tu frontend.
 
-    'allowed_origins' => ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5179'],
+'allowed_headers' => ['*'], 
 
-    'allowed_origins_patterns' => [],
-
-    'allowed_headers' => ['*'],
-
-    'exposed_headers' => [],
-
-    'max_age' => 0,
-
-    'supports_credentials' => true,
+'supports_credentials' => true, 
 
 ];

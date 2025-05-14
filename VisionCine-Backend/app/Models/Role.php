@@ -4,21 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
 
-class Review extends Model
+class Role extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'movie_id',
-        'rating',
-        'comment',
+        'name',
     ];
 
-    public function user()
+    public function users()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(User::class);
     }
 }

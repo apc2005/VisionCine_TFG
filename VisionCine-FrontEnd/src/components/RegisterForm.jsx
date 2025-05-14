@@ -3,7 +3,7 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { useNavigate } from 'react-router-dom';
 import { register } from '../api/backendApi';
-import './Login.css';
+import '../styles/Login.css';
 
 const RegisterForm = () => {
   const [name, setName] = useState('');

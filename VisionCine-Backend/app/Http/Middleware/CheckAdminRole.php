@@ -15,7 +15,7 @@ class CheckAdminRole
     {
         $user = $request->user();
 
-        if (!$user || $user->role->name !== 'admin') {
+        if (!$user || !$user->role || $user->role->name !== 'admin') {
             return response()->json(['message' => 'Unauthorized. Admins only.'], 403);
         }
 

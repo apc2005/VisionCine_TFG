@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use App\Models\Review;
 
 class ReviewController extends Controller
@@ -14,8 +15,6 @@ class ReviewController extends Controller
         $reviews = Review::where('user_id', $user->id)->get();
         return response()->json($reviews);
     }
-
-    use Illuminate\Validation\ValidationException;
 
     public function store(Request $request)
     {
@@ -47,9 +46,15 @@ class ReviewController extends Controller
         return response()->json($review, 201);
     }
 
-    public function getByMovie($movieId)
+    public function getByMovie($id)
     {
-        $reviews = Review::with('user')->where('movie_id', $movieId)->get();
+        $movie = \App\Models\Movie::find($id);
+
+        if (!$movie) {
+            return response()->json(['message' => 'Movie not found'], 404);
+        }
+
+        $reviews = Review::with('user')->where('movie_id', $movie->id)->get();
         return response()->json($reviews);
     }
 }

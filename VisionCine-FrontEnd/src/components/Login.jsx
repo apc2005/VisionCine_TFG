@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { useNavigate } from "react-router-dom";
-import "../components/Login.css";
+import "../styles/Login.css";
 import axios from "axios";
 import { BASE_URL } from "../api/backendApi";
 import { AuthContext } from "../context/AuthContext";
@@ -27,7 +27,7 @@ const LoginForm = () => {
   
       if (response.data.access_token) {
         console.log('Login exitoso', {email});
-        await login(response.data); // Pasar toda la respuesta al AuthContext
+        await login(response.data.access_token, response.data.user); // Pasar token y usuario por separado al AuthContext
         navigate('/');
       } else {
         console.log('Error: No se recibió token del servidor');

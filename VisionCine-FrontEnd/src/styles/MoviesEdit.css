@@ -1,0 +1,109 @@
+.container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 30px;
+  background: #1e1e1e;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(255, 193, 7, 0.2);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #bbb;
+}
+
+.heading {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 25px;
+  color: #ffc107;
+  font-weight: 700;
+}
+
+.error-message {
+  color: #ff4d4f;
+  background-color: #2a2a2a;
+  border: 1px solid #e0a800;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.loading-text {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.form-label {
+  color: #bbb;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: none;
+  background: #2a2a2a;
+  color: white;
+  transition: outline 0.3s ease;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: 2px solid #ffc107;
+  background: #292929;
+  color: white;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 30px;
+  width: 100%;
+}
+
+.btn {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  border: none;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.btn-update {
+  background: #ffc107;
+  color: #121212;
+}
+
+.btn-update:hover {
+  background: #e0a800;
+}
+
+.btn-cancel {
+  background: #444;
+  color: #ffc107;
+}
+
+.btn-cancel:hover {
+  background: #666;
+}

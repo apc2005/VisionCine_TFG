@@ -5,11 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum')->only(['profile', 'verifyToken']);
+    }
+
     public function register(Request $request)
     {
         $request->validate([
@@ -73,9 +79,10 @@ class AuthController extends Controller
     public function profile(Request $request)
     {
         $user = $request->user();
-        if ($user) {
-            return response()->json($user);
+        if (!$user) {
+            Log::warning('Unauthorized access attempt to AuthController@profile');
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
-        return response()->json(['message' => 'Unauthorized'], 401);
+        return response()->json($user);
     }
 }
