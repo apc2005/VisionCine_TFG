@@ -31,6 +31,7 @@ const Header = ({ watchLaterList, watchedList }) => {
                 <div className={`dropdown-content show`}>
                   <Link to="/home" onClick={() => setDropdownOpen(false)}>Home</Link>
                   <Link to="/movies-crud" onClick={() => setDropdownOpen(false)}>Movies CRUD</Link>
+                  <Link to="/users-crud" onClick={() => setDropdownOpen(false)}>Users CRUD</Link>
                   <Link to="/watch-later" onClick={() => setDropdownOpen(false)}>Watch Later ({watchLaterList.length})</Link>
                   <Link to="/watched" onClick={() => setDropdownOpen(false)}>Watched ({watchedList.length})</Link>
                   <Link to="/profile" onClick={() => setDropdownOpen(false)}>Profile</Link>

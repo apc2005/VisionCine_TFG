@@ -15,6 +15,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import RootRedirect from './components/RootRedirect';
 import MoviesCRUD from './pages/MoviesCRUD';
 import MoviesEdit from './pages/MoviesEdit';
+import UsersCRUD from './pages/UsersCRUD';
+import UserEdit from './pages/UserEdit';
 import './styles/App.css';
 import './styles/fixHeaderOverlap.css';
 
@@ -80,6 +82,16 @@ function App() {
           <Route path="/movies/edit/:id" element={
             <ProtectedRoute>
               <MoviesEdit />
+            </ProtectedRoute>
+          } />
+          <Route path="/users-crud" element={
+            <ProtectedRoute>
+              <UsersCRUD />
+            </ProtectedRoute>
+          } />
+          <Route path="/users/edit/:id" element={
+            <ProtectedRoute>
+              <UserEdit />
             </ProtectedRoute>
           } />
           <Route path="/" element={<RootRedirect />} />
