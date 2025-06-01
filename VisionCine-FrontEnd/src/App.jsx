@@ -25,10 +25,13 @@ function App() {
   const location = useLocation();
   const { watchLaterList, watchedList, saveToWatchLater, markAsWatched } = useMovieList();
   const { setInput, searchResults, isLoading } = useBackendMovies();
-  const movies = { data: searchResults, isLoading };
 
   const handleSearchChange = (event) => {
     setInput(event.target.value);
+  };
+
+  const handleMovieSelect = (movie) => {
+    navigate(`/movie/${movie.id}`);
   };
 
   const hideHeaderPaths = ['/login', '/register'];
@@ -49,29 +52,29 @@ function App() {
           } />
           <Route path="/watch-later" element={
             <ProtectedRoute>
-              <WatchLater movies={watchLaterList} />
+              <WatchLater movies={watchLaterList} onMovieSelect={handleMovieSelect} />
             </ProtectedRoute>
           } />
           <Route path="/watched" element={
             <ProtectedRoute>
-              <Watched movies={watchedList} />
+              <Watched movies={watchedList} onMovieSelect={handleMovieSelect} />
             </ProtectedRoute>
           } />
           <Route path="/search" element={
             <ProtectedRoute>
-              <Search movies={movies} handleSearchChange={handleSearchChange} />
+              <Search movies={{ pages: [{ results: searchResults }] }} handleSearchChange={handleSearchChange} onMovieSelect={handleMovieSelect} />
             </ProtectedRoute>
           } />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterForm />} />
           <Route path="/popular-movies" element={
             <ProtectedRoute>
-              <PopularMovies popularMovies={movies} />
+              <PopularMovies popularMovies={{ pages: [{ results: searchResults }] }} onMovieSelect={handleMovieSelect} />
             </ProtectedRoute>
           } />
           <Route path="/home" element={
             <ProtectedRoute>
-              <Home />
+              <Home onMovieSelect={handleMovieSelect} />
             </ProtectedRoute>
           } />
           <Route path="/movies-crud" element={
@@ -84,12 +87,22 @@ function App() {
               <MoviesEdit />
             </ProtectedRoute>
           } />
+          <Route path="/movies/edit" element={
+            <ProtectedRoute>
+              <MoviesEdit />
+            </ProtectedRoute>
+          } />
           <Route path="/users-crud" element={
             <ProtectedRoute>
               <UsersCRUD />
             </ProtectedRoute>
           } />
           <Route path="/users/edit/:id" element={
+            <ProtectedRoute>
+              <UserEdit />
+            </ProtectedRoute>
+          } />
+          <Route path="/users/edit" element={
             <ProtectedRoute>
               <UserEdit />
             </ProtectedRoute>

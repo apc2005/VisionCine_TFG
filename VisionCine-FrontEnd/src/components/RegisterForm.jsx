@@ -23,19 +23,19 @@ const RegisterForm = () => {
       setTimeout(() => navigate('/login'), 2000);
     } catch (error) {
       setSuccess(false);
-      setError(error.response?.data?.message || 'Registration failed');
+      setError(error.response?.data?.message || 'Error en el registro');
     }
   };
 
   return (
     <div className="login-container">
       <div className="login-box">
-        <h2>Register</h2>
-        {success && <p style={{ color: 'green' }}>Registration successful! Redirecting to login...</p>}
+        <h2>Registrarse</h2>
+        {success && <p style={{ color: 'green' }}>¡Registro exitoso! Redirigiendo al inicio de sesión...</p>}
         {error && <p style={{ color: 'red' }}>{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className="p-field">
-            <label>Name</label>
+            <label>Nombre</label>
             <InputText 
               value={name} 
               onChange={(e) => setName(e.target.value)} 
@@ -43,7 +43,7 @@ const RegisterForm = () => {
             />
           </div>
           <div className="p-field">
-            <label>Email</label>
+            <label>Correo electrónico</label>
             <InputText 
               type="email" 
               value={email} 
@@ -52,7 +52,7 @@ const RegisterForm = () => {
             />
           </div>
           <div className="p-field">
-            <label>Password</label>
+            <label>Contraseña</label>
             <InputText 
               type="password" 
               value={password} 
@@ -61,7 +61,7 @@ const RegisterForm = () => {
             />
           </div>
           <div className="p-field">
-            <label>Confirm Password</label>
+            <label>Confirmar contraseña</label>
             <InputText 
               type="password" 
               value={passwordConfirmation} 
@@ -69,7 +69,7 @@ const RegisterForm = () => {
               required 
             />
           </div>
-          <Button type="submit" label="Register" />
+          <Button type="submit" label="Registrarse" />
         </form>
       </div>
     </div>

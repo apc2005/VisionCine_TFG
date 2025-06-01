@@ -9,14 +9,14 @@ const useMovieList = () => {
     const fetchLists = async () => {
       const watchLaterData = await fetchUserWatchLater();
       const watchLaterFull = await Promise.all(watchLaterData.map(async (movie) => {
-        const fullDetails = await fetchMovieDetails(movie.id);
+        const fullDetails = await fetchMovieDetails(movie.movie_id);
         return fullDetails || movie;
       }));
       setWatchLaterList(watchLaterFull);
 
       const watchedData = await fetchUserWatched();
       const watchedFull = await Promise.all(watchedData.map(async (movie) => {
-        const fullDetails = await fetchMovieDetails(movie.id);
+        const fullDetails = await fetchMovieDetails(movie.movie_id);
         return fullDetails || movie;
       }));
       setWatchedList(watchedFull);

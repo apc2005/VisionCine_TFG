@@ -3,6 +3,20 @@ import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../styles/MoviesEdit.css'; 
 
+const genreOptions = [
+  '',
+  'Acción',
+  'Aventura',
+  'Comedia',
+  'Drama',
+  'Terror',
+  'Ciencia ficción',
+  'Romance',
+  'Suspense',
+  'Animación',
+  'Documental',
+];
+
 const MoviesEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -20,30 +34,32 @@ const MoviesEdit = () => {
   const getAuthToken = () => localStorage.getItem('token');
 
   useEffect(() => {
-    const fetchMovie = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const token = getAuthToken();
-        const response = await axios.get(`http://localhost:8000/api/movies/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const movie = response.data || {};
-        setForm({
-          title: movie.title || '',
-          description: movie.description || '',
-          release_date: movie.release_date || '',
-          poster_path: movie.poster_path || '',
-          genre: movie.genre || '',
-        });
-      } catch (err) {
-        console.error(err);
-        setError('Error fetching movie data');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMovie();
+    if (id) {
+      const fetchMovie = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const token = getAuthToken();
+          const response = await axios.get(`http://localhost:8000/api/movies/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const movie = response.data || {};
+          setForm({
+            title: movie.title || '',
+            description: movie.description || '',
+            release_date: movie.release_date || '',
+            poster_path: movie.poster_path || '',
+            genre: movie.genre || '',
+          });
+        } catch (err) {
+          console.error(err);
+          setError('Error al obtener datos de la película');
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchMovie();
+    }
   }, [id]);
 
   const handleChange = (e) => {
@@ -60,14 +76,20 @@ const MoviesEdit = () => {
     setError(null);
     try {
       const token = getAuthToken();
-      await axios.put(`http://localhost:8000/api/movies/${id}`, form, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      if (id) {
+        await axios.put(`http://localhost:8000/api/movies/${id}`, form, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } else {
+        await axios.post('http://localhost:8000/api/movies', form, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
       navigate('/movies-crud', { replace: true });
     } catch (err) {
-      console.error('Update movie error:', err);
+      console.error('Save movie error:', err);
       const message =
-        err.response?.data?.message || 'Error updating movie';
+        err.response?.data?.message || (id ? 'Error al actualizar la película' : 'Error al crear la película');
       setError(`Error: ${message}`);
     } finally {
       setLoading(false);
@@ -75,96 +97,101 @@ const MoviesEdit = () => {
   };
 
   return (
-    <div className="container">
-  <h1 className="heading">Edit Movie</h1>
+    <div className="container movie-edit-container">
+      <h1 className="heading">{id ? 'Editar película' : 'Crear película'}</h1>
 
-  {error && <p className="error-message">{error}</p>}
-  {loading ? (
-    <p className="loading-text">Loading...</p>
-  ) : (
-    <form onSubmit={handleSubmit}>
-      <div className="form-group">
-        <label htmlFor="title" className="form-label">Title</label>
-        <input
-          id="title"
-          name="title"
-          value={form.title}
-          onChange={handleChange}
-          placeholder="Title"
-          required
-          className="form-input"
-        />
-      </div>
+      {error && <p className="error-message">{error}</p>}
+      {loading ? (
+        <p className="loading-text">Cargando...</p>
+      ) : (
+        <form onSubmit={handleSubmit} className="movie-edit-form">
+          <div className="form-group">
+            <label htmlFor="title" className="form-label">Título</label>
+            <input
+              id="title"
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              placeholder="Título"
+              required
+              className="form-input"
+            />
+          </div>
 
-      <div className="form-group">
-        <label htmlFor="description" className="form-label">Description</label>
-        <textarea
-          id="description"
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          placeholder="Description"
-          rows={4}
-          className="form-textarea"
-        />
-      </div>
+          <div className="form-group">
+            <label htmlFor="description" className="form-label">Descripción</label>
+            <textarea
+              id="description"
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              placeholder="Descripción"
+              rows={4}
+              className="form-textarea"
+            />
+          </div>
 
-      <div className="form-group">
-        <label htmlFor="release_date" className="form-label">Release Date</label>
-        <input
-          id="release_date"
-          name="release_date"
-          type="date"
-          value={form.release_date}
-          onChange={handleChange}
-          className="form-input"
-        />
-      </div>
+          <div className="form-group">
+            <label htmlFor="release_date" className="form-label">Fecha de estreno</label>
+            <input
+              id="release_date"
+              name="release_date"
+              type="date"
+              value={form.release_date}
+              onChange={handleChange}
+              className="form-input"
+            />
+          </div>
 
-      <div className="form-group">
-        <label htmlFor="poster_path" className="form-label">Poster Path</label>
-        <input
-          id="poster_path"
-          name="poster_path"
-          value={form.poster_path}
-          onChange={handleChange}
-          placeholder="Poster Path"
-          className="form-input"
-        />
-      </div>
+          <div className="form-group">
+            <label htmlFor="poster_path" className="form-label">Ruta del póster</label>
+            <input
+              id="poster_path"
+              name="poster_path"
+              value={form.poster_path}
+              onChange={handleChange}
+              placeholder="Ruta del póster"
+              className="form-input"
+            />
+          </div>
 
-      <div className="form-group">
-        <label htmlFor="genre" className="form-label">Genre</label>
-        <input
-          id="genre"
-          name="genre"
-          value={form.genre}
-          onChange={handleChange}
-          placeholder="Genre"
-          className="form-input"
-        />
-      </div>
+          <div className="form-group">
+            <label htmlFor="genre" className="form-label">Género</label>
+            <select
+              id="genre"
+              name="genre"
+              value={form.genre}
+              onChange={handleChange}
+              className="form-select"
+            >
+              {genreOptions.map((genreOption) => (
+                <option key={genreOption} value={genreOption}>
+                  {genreOption}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      <div className="button-group">
-        <button
-          type="submit"
-          className="btn btn-update"
-          disabled={loading}
-        >
-          Update Movie
-        </button>
-        <button
-          type="button"
-          onClick={() => navigate('/movies-crud')}
-          className="btn btn-cancel"
-          disabled={loading}
-        >
-          Cancel
-        </button>
-      </div>
-    </form>
-  )}
-</div>
+          <div className="button-group">
+            <button
+              type="submit"
+              className="btn btn-update"
+              disabled={loading}
+            >
+              {id ? 'Actualizar película' : 'Crear película'}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/movies-crud')}
+              className="btn btn-cancel"
+              disabled={loading}
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
   );
 };
 

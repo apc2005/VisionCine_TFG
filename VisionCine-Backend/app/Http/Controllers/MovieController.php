@@ -34,6 +34,21 @@ class MovieController extends Controller
         }
     }
 
+    public function search($query)
+    {
+        $user = request()->user();
+        if (!$user) {
+            Log::warning('Unauthorized access attempt to MovieController@search');
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+        try {
+            $movies = Movie::where('title', 'like', '%' . $query . '%')->get();
+            return response()->json($movies);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error searching movies', 'message' => $e->getMessage()], 500);
+        }
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -57,7 +72,14 @@ class MovieController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
         try {
-            $movie = Movie::findOrFail($id);
+            if (is_numeric($id)) {
+                $movie = Movie::find($id);
+            } else {
+                $movie = Movie::where('tmdb_id', $id)->first();
+            }
+            if (!$movie) {
+                return response()->json(['error' => 'Movie not found'], 404);
+            }
             return response()->json($movie);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error fetching movie', 'message' => $e->getMessage()], 500);

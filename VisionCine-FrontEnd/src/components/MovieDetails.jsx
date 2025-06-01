@@ -3,15 +3,12 @@ import Swal from 'sweetalert2';
 import '../styles/MoviePage.css';
 import StarRating from './StarRating';
 import { 
-  fetchUserFavorites, 
   addFavorite, 
   removeFavorite, 
   addToWatchLater, 
   removeFromWatchLater, 
   addToWatched, 
   removeFromWatched,
-  fetchUserWatchLater,
-  fetchUserWatched,
   api
 } from '../api/backendApi';
 import { AuthContext } from '../context/AuthContext';
@@ -21,51 +18,42 @@ const MovieDetails = ({ movie }) => {
   const [rating, setRating] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [reviews, setReviews] = useState([]);
+  const { authToken, favorites, watchLater, watched, refreshFavorites, refreshWatchLater, refreshWatched } = useContext(AuthContext);
+
   const [isFavorite, setIsFavorite] = useState(false);
   const [isWatchLater, setIsWatchLater] = useState(null);
-  const [isWatched, setIsWatched] = useState(null);
-  const { authToken, refreshFavorites } = useContext(AuthContext);
+  const [isWatched, setIsWatched] = useState(false);
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const { data } = await api.get(`/reviews/movie/${movie.id}`);
+        const movieId = movie.id;
+        const { data } = await api.get(`/reviews/movie/${movieId}`);
         setReviews(data);
       } catch (error) {
         console.error('Error:', error);
       }
     };
 
-    const fetchFavoriteStatus = async () => {
-      if (!authToken) return;
-
-      try {
-        const favorites = await fetchUserFavorites();
-        const isFav = favorites.some(fav => fav.id === movie.id);
-        setIsFavorite(isFav);
-      } catch (error) {
-        console.error('Error al comprobar favoritos:', error);
-      }
-    };
-
-    const checkWatchLaterAndWatchedStatus = async () => {
-      if (!authToken) return;
-
-      try {
-        const watchLaterData = await fetchUserWatchLater();
-        setIsWatchLater(watchLaterData.some(item => item.movie_id === movie.id));
-
-        const watchedData = await fetchUserWatched();
-        setIsWatched(watchedData.some(item => item.movie_id === movie.id));
-      } catch (error) {
-        console.error('Error al comprobar estado de ver después y visto:', error);
-      }
-    };
-
     fetchReviews();
-    fetchFavoriteStatus();
-    checkWatchLaterAndWatchedStatus();
-  }, [movie.id, submitted, authToken]);
+  }, [movie.id, submitted]);
+
+  // Added useEffect to refresh watchLater and watched lists on mount or movie change
+  useEffect(() => {
+    if (authToken) {
+      refreshWatchLater();
+      refreshWatched();
+    }
+  }, [authToken, movie.id, refreshWatchLater, refreshWatched]);
+
+  useEffect(() => {
+    if (!authToken) return;
+
+    const movieId = movie.id;
+    setIsFavorite(favorites.some(fav => fav.id === movieId));
+    setIsWatchLater(watchLater.some(item => item.id === movieId));
+    setIsWatched(watched.some(item => item.id === movieId));
+  }, [favorites, watchLater, watched, movie.id, authToken]);
 
   const handleRatingChange = (newRating) => {
     setRating(newRating);
@@ -76,7 +64,7 @@ const MovieDetails = ({ movie }) => {
 
     try {
       const response = await api.post('/reviews', {
-        tmdb_id: movie.tmdb_id,
+        movie_id: movie.id,
         rating: rating,
         comment: comment
       });
@@ -101,24 +89,20 @@ const MovieDetails = ({ movie }) => {
     }
 
     try {
+      const movieId = movie.id;
       if (isFavorite) {
-        await removeFavorite(movie.id);
-        setIsFavorite(false);
+        await removeFavorite(movieId);
         Swal.fire('Éxito', 'Película eliminada de favoritas', 'success');
       } else {
-        const favorites = await fetchUserFavorites();
         if (favorites.length >= 3) {
           Swal.fire('Atención', 'Solo puedes tener hasta 3 películas favoritas', 'warning');
           return;
         }
-        await addFavorite(movie.id);
-        setIsFavorite(true);
+        await addFavorite(movieId);
         Swal.fire('Éxito', 'Película agregada a favoritas', 'success');
       }
 
-      if (typeof refreshFavorites === 'function') {
-        refreshFavorites();
-      }
+      refreshFavorites();
     } catch (error) {
       console.error('Error al actualizar favoritas:', error);
       Swal.fire('Error', 'Error al actualizar favoritas', 'error');
@@ -132,21 +116,19 @@ const MovieDetails = ({ movie }) => {
     }
 
     try {
+      const movieId = movie.id;
       if (isWatchLater) {
-        await removeFromWatchLater(String(movie.id));
-        setIsWatchLater(false);
+        await removeFromWatchLater(String(movieId));
         Swal.fire('Éxito', 'Película eliminada de ver después', 'success');
       } else {
-        await addToWatchLater(String(movie.id));
-        setIsWatchLater(true);
+        await addToWatchLater(String(movieId));
         Swal.fire('Éxito', 'Película agregada a ver después', 'success');
       }
+      refreshWatchLater();
     } catch (error) {
       console.error('Error al actualizar ver después:', error);
       if (error.response && error.response.status === 400) {
-        // Manejar error 400 sin alertar al usuario
         console.warn('La película ya está en tu lista de ver más tarde');
-        setIsWatchLater(true); // Sincronizar estado con backend
       } else {
         Swal.fire('Error', 'Error al actualizar ver después', 'error');
       }
@@ -160,15 +142,15 @@ const MovieDetails = ({ movie }) => {
     }
 
     try {
+      const movieId = movie.id;
       if (isWatched) {
-        await removeFromWatched(movie.id);
-        setIsWatched(false);
+        await removeFromWatched(movieId);
         Swal.fire('Éxito', 'Película desmarcada como vista', 'success');
       } else {
-        await addToWatched(movie.id);
-        setIsWatched(true);
+        await addToWatched(movieId);
         Swal.fire('Éxito', 'Película marcada como vista', 'success');
       }
+      refreshWatched();
     } catch (error) {
       console.error('Error al actualizar visto:', error);
       Swal.fire('Error', 'Error al actualizar visto', 'error');
@@ -179,9 +161,12 @@ const MovieDetails = ({ movie }) => {
     <div className="movie-details">
       <h2>{movie.title}</h2>
       <img
-        src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
+        src={`https://image.tmdb.org/t/p/w154${movie.poster_path}`}
         alt={`Poster de ${movie.title}`}
+        style={{ maxWidth: '254px', height: 'auto' }}
       />
+
+      <p className="movie-description">{movie.description || movie.overview || 'Sin descripción disponible.'}</p>
 
       <button onClick={toggleFavorite} className="favorite-btn">
         {isFavorite ? '❤️ Quitar de favoritas' : '🤍 Añadir a favoritas'}
@@ -195,7 +180,7 @@ const MovieDetails = ({ movie }) => {
         )}
         {isWatched !== null && (
           <button onClick={handleMarkAsWatched}>
-            {isWatched ? 'Desmarcar como vista' : 'Marcar como vista'}
+            {isWatched ? 'Quitar de vista' : 'Agregar de vista'}
           </button>
         )}
       </div>
@@ -205,6 +190,7 @@ const MovieDetails = ({ movie }) => {
         <form onSubmit={handleReviewSubmit}>
           <div>
             <textarea
+              className="textarea-estilizada"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Escribe tu comentario"

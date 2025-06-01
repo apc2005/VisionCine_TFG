@@ -70,11 +70,6 @@ const LoginForm = () => {
             />
           </div>
 
-          <div className="p-field">
-            <input type="checkbox" id="rememberMe" name="rememberMe" />
-            <label htmlFor="rememberMe" className="p-checkbox-label">Recuérdame</label>
-          </div>
-
           <Button type="submit" label="Ingresar" />
         </form>
         

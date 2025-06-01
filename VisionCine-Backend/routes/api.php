@@ -8,6 +8,7 @@ use App\Http\Controllers\MovieController;
 use App\Http\Controllers\WatchLaterController;
 use App\Http\Controllers\WatchedController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\RoleController;
 use App\Http\Middleware\CheckAdminRole;
 
 Route::middleware('api')->group(function () {
@@ -21,6 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/verify-token', [AuthController::class, 'verifyToken']);
 
     Route::get('/movies', [MovieController::class, 'index']);
+    Route::get('/movies/search/{query}', [MovieController::class, 'search']);
     Route::get('/movies/{id}', [MovieController::class, 'show']);
     Route::post('/movies', [MovieController::class, 'store'])->middleware(CheckAdminRole::class);
     Route::put('/movies/{id}', [MovieController::class, 'update'])->middleware(CheckAdminRole::class);
@@ -41,4 +43,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/reviews', [ReviewController::class, 'index']);
     Route::post('/reviews', [ReviewController::class, 'store']);
     Route::get('/reviews/movie/{tmdbId}', [ReviewController::class, 'getByMovie']);
+
+    Route::get('/users', [\App\Http\Controllers\UserController::class, 'index']);
+    Route::get('/users/{id}', [\App\Http\Controllers\UserController::class, 'show']);
+    Route::post('/users', [\App\Http\Controllers\UserController::class, 'store'])->middleware(CheckAdminRole::class);
+    Route::put('/users/{id}', [\App\Http\Controllers\UserController::class, 'update'])->middleware(CheckAdminRole::class);
+    Route::delete('/users/{id}', [\App\Http\Controllers\UserController::class, 'destroy'])->middleware(CheckAdminRole::class);
+
+    Route::get('/roles', [RoleController::class, 'index']);
 });

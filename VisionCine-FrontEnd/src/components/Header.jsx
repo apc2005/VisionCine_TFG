@@ -29,22 +29,22 @@ const Header = ({ watchLaterList, watchedList }) => {
               </button>
               {dropdownOpen && (
                 <div className={`dropdown-content show`}>
-                  <Link to="/home" onClick={() => setDropdownOpen(false)}>Home</Link>
-                  <Link to="/movies-crud" onClick={() => setDropdownOpen(false)}>Movies CRUD</Link>
-                  <Link to="/users-crud" onClick={() => setDropdownOpen(false)}>Users CRUD</Link>
-                  <Link to="/watch-later" onClick={() => setDropdownOpen(false)}>Watch Later ({watchLaterList.length})</Link>
-                  <Link to="/watched" onClick={() => setDropdownOpen(false)}>Watched ({watchedList.length})</Link>
-                  <Link to="/profile" onClick={() => setDropdownOpen(false)}>Profile</Link>
-                  <Link to="/search" onClick={() => setDropdownOpen(false)}>Search</Link>
-                  <Link to="/popular-movies" onClick={() => setDropdownOpen(false)}>Popular Movies</Link>
+                  <Link to="/home" onClick={() => setDropdownOpen(false)}>Inicio</Link>
+                  <Link to="/movies-crud" onClick={() => setDropdownOpen(false)}>Gestión de Películas</Link>
+                  <Link to="/users-crud" onClick={() => setDropdownOpen(false)}>Gestión de Usuarios</Link>
+                  <Link to="/watch-later" onClick={() => setDropdownOpen(false)}>Ver Más Tarde ({watchLaterList.length})</Link>
+                  <Link to="/watched" onClick={() => setDropdownOpen(false)}>Vistas ({watchedList.length})</Link>
+                  <Link to="/profile" onClick={() => setDropdownOpen(false)}>Perfil</Link>
+                  <Link to="/search" onClick={() => setDropdownOpen(false)}>Buscar</Link>
+                  <Link to="/popular-movies" onClick={() => setDropdownOpen(false)}>Películas Populares</Link>
                 </div>
               )}
 
             </li>
           ) : (
             <>
-              <li><Link to="/login">Login</Link></li>
-              <li><Link to="/register">Register</Link></li>
+              <li><Link to="/login">Iniciar sesión</Link></li>
+              <li><Link to="/register">Registrarse</Link></li>
             </>
           )}
         </ul>
@@ -55,7 +55,7 @@ const Header = ({ watchLaterList, watchedList }) => {
 
         <ul className="navbar-right">
           {user ? (
-            <li>Welcome, {user.email || user.name || 'User'}</li>
+            <li>Bienvenido, {user.email || user.name || 'Usuario'}</li>
           ) : null}
         </ul>
       </nav>

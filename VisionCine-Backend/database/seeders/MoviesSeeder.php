@@ -36,7 +36,7 @@ class MoviesSeeder extends Seeder
 
                 foreach ($movies as $movie) {
                     Movie::updateOrCreate(
-                        ['tmdb_id' => $movie['id']], // Avoid duplicates
+                        ['tmdb_id' => $movie['id']],
                         [
                             'title' => $movie['title'],
                             'description' => $movie['overview'],

@@ -2,10 +2,11 @@ import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Pencil, Trash2 } from 'lucide-react';
-import '../styles/MoviesCRUD.css'; 
+import '../styles/MoviesCrud.css'; 
 
 const UsersCRUD = () => {
   const [users, setUsers] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
@@ -13,6 +14,18 @@ const UsersCRUD = () => {
   const navigate = useNavigate();
 
   const getAuthToken = () => localStorage.getItem('token');
+
+  const fetchRoles = async () => {
+    try {
+      const token = getAuthToken();
+      const response = await axios.get('http://localhost:8000/api/roles', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setRoles(response.data);
+    } catch (err) {
+      console.error('Error fetching roles:', err);
+    }
+  };
 
   const fetchUsers = useCallback(async (pageNumber = 1) => {
     setLoading(true);
@@ -32,7 +45,7 @@ const UsersCRUD = () => {
       setPage(data.current_page);
       setError(null);
     } catch (err) {
-      setError('Error fetching users');
+      setError('Error al obtener usuarios');
       console.error(err);
     } finally {
       setLoading(false);
@@ -41,6 +54,7 @@ const UsersCRUD = () => {
 
   useEffect(() => {
     fetchUsers(1);
+    fetchRoles();
   }, [fetchUsers]);
 
   const handleDelete = async (id) => {
@@ -55,8 +69,8 @@ const UsersCRUD = () => {
     } catch (error) {
       setError(
         error.response?.data?.message
-          ? `Error deleting user: ${error.response.data.message}`
-          : 'Error deleting user'
+          ? `Error al eliminar el usuario: ${error.response.data.message}`
+          : 'Error al eliminar el usuario'
       );
       console.error('Delete user error:', error);
     } finally {
@@ -66,6 +80,10 @@ const UsersCRUD = () => {
 
   const handleEdit = (id) => {
     navigate(`/users/edit/${id}`);
+  };
+
+  const handleCreate = () => {
+    navigate('/users/edit');
   };
 
   const handleScroll = useCallback(() => {
@@ -87,13 +105,17 @@ const UsersCRUD = () => {
     <div className="container">
       {error && <div className="error-message">{error}</div>}
 
+      <button className="button button-create" onClick={handleCreate}>
+        Crear Usuario
+      </button>
+
       <div className="table-container">
         <table className="table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th className="text-center">Actions</th>
+              <th>Nombre</th>
+              <th>Correo electrónico</th>
+              <th className="text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -110,14 +132,14 @@ const UsersCRUD = () => {
                     className="button button-edit"
                   >
                     <Pencil size={16} className="icon" />
-                    Edit
+                    Editar
                   </button>
                   <button
                     onClick={() => handleDelete(user.id)}
                     className="button button-delete"
                   >
                     <Trash2 size={16} className="icon" />
-                    Delete
+                    Eliminar
                   </button>
                 </td>
               </tr>
@@ -126,8 +148,8 @@ const UsersCRUD = () => {
         </table>
       </div>
 
-      {loading && <p className="loading-text">Loading...</p>}
-      {!hasMore && <p className="no-more-text">No more users to load.</p>}
+      {loading && <p className="loading-text">Cargando...</p>}
+      {!hasMore && <p className="no-more-text">No hay más usuarios para cargar.</p>}
     </div>
   );
 };

@@ -1,27 +1,38 @@
 import React from "react";
 import MovieList from "../components/MovieList";
-import { usePopularMovies } from "../api/moviesApi"; 
+import { useMovies } from "../api/backendApi";
+import { usePopularMovies } from "../api/moviesApi";
 import { useNavigate } from "react-router-dom";
 import { FaStar } from "react-icons/fa";
 import Carousel from "../components/Carrousel";
 import Footer from "../components/Footer";
 
 const Home = () => {
-  const { data, isLoading } = usePopularMovies();
-  const movies = data?.results || []; 
-  
+  const { data: backendMoviesData, isLoading: backendLoading, error: backendError } = useMovies();
+  const { data: popularMoviesData, isLoading: popularLoading, error: popularError } = usePopularMovies();
   const navigate = useNavigate();
 
   const handleMovieClick = (movie) => {
     navigate(`/movie/${movie.id}`);
   };
 
-  const topMovies = movies.slice(0, 5);
+  const backendMovies = backendMoviesData?.data || [];
+  const topBackendMovies = backendMovies.slice(0, 5);
+
+  const popularMovies = popularMoviesData?.results || [];
+
+  if (backendLoading || popularLoading) {
+    return <p>Cargando...</p>;
+  }
+
+  if (backendError || popularError) {
+    return <p>Error al cargar las películas.</p>;
+  }
 
   return (
     <div className="home">
       <div className="banner">
-        {isLoading ? <p>Cargando...</p> : <Carousel movies={movies} />}
+        <Carousel movies={popularMovies} />
       </div>
 
       <section className="intro">
@@ -60,7 +71,7 @@ const Home = () => {
         </div>
       </section>
 
-      <MovieList movies={topMovies} onMovieSelect={handleMovieClick} title="Tus Top 5 Películas" />
+      <MovieList movies={topBackendMovies} onMovieSelect={handleMovieClick} title="Tus Top 5 Películas" />
 
       <Footer />
     </div>

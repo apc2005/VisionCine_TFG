@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Pencil, Trash2 } from 'lucide-react';
-import '../styles/MoviesCRUD.css';
+import '../styles/MoviesCrud.css';
 
 const MoviesCRUD = () => {
   const [movies, setMovies] = useState([]);
@@ -32,7 +32,7 @@ const MoviesCRUD = () => {
       setPage(data.current_page);
       setError(null);
     } catch (err) {
-      setError('Error fetching movies');
+      setError('Error al obtener películas');
       console.error(err);
     } finally {
       setLoading(false);
@@ -55,8 +55,8 @@ const MoviesCRUD = () => {
     } catch (error) {
       setError(
         error.response?.data?.message
-          ? `Error deleting movie: ${error.response.data.message}`
-          : 'Error deleting movie'
+          ? `Error al eliminar la película: ${error.response.data.message}`
+          : 'Error al eliminar la película'
       );
       console.error('Delete movie error:', error);
     } finally {
@@ -68,33 +68,26 @@ const MoviesCRUD = () => {
     navigate(`/movies/edit/${id}`);
   };
 
-  const handleScroll = useCallback(() => {
-    if (loading || !hasMore) return;
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    const windowHeight = window.innerHeight;
-    const fullHeight = document.documentElement.offsetHeight;
-    if (scrollTop + windowHeight >= fullHeight - 100) {
-      fetchMovies(page + 1);
-    }
-  }, [loading, hasMore, page, fetchMovies]);
-
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
+  const handleCreateClick = () => {
+    navigate('/movies/edit');
+  };
 
   return (
     <div className="container">
       {error && <div className="error-message">{error}</div>}
 
+      <button className="button button-create" onClick={handleCreateClick}>
+        Crear Película
+      </button>
+
       <div className="table-container">
         <table className="table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Description</th>
-              <th className="text-center">Image</th>
-              <th className="text-center">Actions</th>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th className="text-center">Imagen</th>
+              <th className="text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -119,14 +112,14 @@ const MoviesCRUD = () => {
                     className="button button-edit"
                   >
                     <Pencil size={16} className="icon" />
-                    Edit
+                    Editar
                   </button>
                   <button
                     onClick={() => handleDelete(movie.id)}
                     className="button button-delete"
                   >
                     <Trash2 size={16} className="icon" />
-                    Delete
+                    Eliminar
                   </button>
                 </td>
               </tr>
@@ -135,8 +128,8 @@ const MoviesCRUD = () => {
         </table>
       </div>
 
-      {loading && <p className="loading-text">Loading...</p>}
-      {!hasMore && <p className="no-more-text">No more movies to load.</p>}
+      {loading && <p className="loading-text">Cargando...</p>}
+      {!hasMore && <p className="no-more-text">No hay más películas para cargar.</p>}
     </div>
   );
 };

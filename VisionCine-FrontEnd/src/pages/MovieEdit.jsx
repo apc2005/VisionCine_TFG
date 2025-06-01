@@ -34,7 +34,7 @@ const MovieEdit = () => {
           genre: response.data.genre || '',
         });
       } catch {
-        setError('Error fetching movie data');
+        setError('Error al obtener datos de la película');
       } finally {
         setLoading(false);
       }
@@ -56,26 +56,26 @@ const MovieEdit = () => {
       });
       navigate('/movies');
     } catch {
-      setError('Error updating movie');
+      setError('Error al actualizar la película');
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p>Cargando...</p>;
   if (error) return <p>{error}</p>;
 
   return (
     <div>
-      <h1>Edit Movie</h1>
+      <h1>Editar película</h1>
       <form onSubmit={handleSubmit}>
-        <input name="title" placeholder="Title" value={form.title} onChange={handleChange} required />
-        <input name="description" placeholder="Description" value={form.description} onChange={handleChange} />
-        <input name="release_date" type="date" placeholder="Release Date" value={form.release_date} onChange={handleChange} />
-        <input name="poster_path" placeholder="Poster Path" value={form.poster_path} onChange={handleChange} />
-        <input name="genre" placeholder="Genre" value={form.genre} onChange={handleChange} />
-        <button type="submit">Update Movie</button>
-        <button type="button" onClick={() => navigate('/movies')} style={{ marginLeft: '10px' }}>Cancel</button>
+        <input name="title" placeholder="Título" value={form.title} onChange={handleChange} required />
+        <input name="description" placeholder="Descripción" value={form.description} onChange={handleChange} />
+        <input name="release_date" type="date" placeholder="Fecha de estreno" value={form.release_date} onChange={handleChange} />
+        <input name="poster_path" placeholder="Ruta del póster" value={form.poster_path} onChange={handleChange} />
+        <input name="genre" placeholder="Género" value={form.genre} onChange={handleChange} />
+        <button type="submit">Actualizar película</button>
+        <button type="button" onClick={() => navigate('/movies')} style={{ marginLeft: '10px' }}>Cancelar</button>
       </form>
     </div>
   );

@@ -30,14 +30,13 @@ const useMovies = () => {
   const [debouncedQuery, setDebouncedQuery] = useState(queryFromUrl);
   const observerRef = useRef(null);
 
-  // Usando debounce de lodash
   const debouncedSearch = useRef(
     debounce((value) => setDebouncedQuery(value), 500)
   ).current;
 
   useEffect(() => {
     debouncedSearch(input);
-    return () => debouncedSearch.cancel();  // Limpia el debounce al desmontar
+    return () => debouncedSearch.cancel(); 
   }, [input]);
 
   useEffect(() => {

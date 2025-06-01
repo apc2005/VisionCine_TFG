@@ -11,35 +11,56 @@ const UserEdit = () => {
     name: '',
     email: '',
     password: '',
+    role_id: '',
   });
+  const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const getAuthToken = () => localStorage.getItem('token');
 
+  const fetchRoles = async () => {
+    try {
+      const token = getAuthToken();
+      const response = await axios.get('http://localhost:8000/api/roles', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setRoles(response.data);
+    } catch (err) {
+      console.error('Error fetching roles:', err);
+    }
+  };
+
   useEffect(() => {
-    const fetchUser = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const token = getAuthToken();
-        const response = await axios.get(`http://localhost:8000/api/users/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const user = response.data || {};
-        setForm({
-          name: user.name || '',
-          email: user.email || '',
-          password: '',
-        });
-      } catch (err) {
-        console.error(err);
-        setError('Error fetching user data');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUser();
+    fetchRoles();
+  }, []);
+
+  useEffect(() => {
+    if (id) {
+      const fetchUser = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const token = getAuthToken();
+          const response = await axios.get(`http://localhost:8000/api/users/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const user = response.data || {};
+          setForm({
+            name: user.name || '',
+            email: user.email || '',
+            password: '',
+            role_id: user.role_id || '',
+          });
+        } catch (err) {
+          console.error(err);
+          setError('Error al obtener datos del usuario');
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchUser();
+    }
   }, [id]);
 
   const handleChange = (e) => {
@@ -56,19 +77,24 @@ const UserEdit = () => {
     setError(null);
     try {
       const token = getAuthToken();
-      // Only send password if it is not empty
-      const dataToSend = { ...form };
-      if (!dataToSend.password) {
-        delete dataToSend.password;
+      if (id) {
+        const dataToSend = { ...form };
+        if (!dataToSend.password) {
+          delete dataToSend.password;
+        }
+        await axios.put(`http://localhost:8000/api/users/${id}`, dataToSend, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } else {
+        await axios.post('http://localhost:8000/api/users', form, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
       }
-      await axios.put(`http://localhost:8000/api/users/${id}`, dataToSend, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
       navigate('/users-crud', { replace: true });
     } catch (err) {
-      console.error('Update user error:', err);
+      console.error('Save user error:', err);
       const message =
-        err.response?.data?.message || 'Error updating user';
+        err.response?.data?.message || (id ? 'Error al actualizar el usuario' : 'Error al crear el usuario');
       setError(`Error: ${message}`);
     } finally {
       setLoading(false);
@@ -77,51 +103,69 @@ const UserEdit = () => {
 
   return (
     <div className="container">
-      <h1 className="heading">Edit User</h1>
+      <h1 className="heading">{id ? 'Editar usuario' : 'Crear usuario'}</h1>
 
       {error && <p className="error-message">{error}</p>}
       {loading ? (
-        <p className="loading-text">Loading...</p>
+        <p className="loading-text">Cargando...</p>
       ) : (
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="name" className="form-label">Name</label>
+            <label htmlFor="name" className="form-label">Nombre</label>
             <input
               id="name"
               name="name"
               value={form.name}
               onChange={handleChange}
-              placeholder="Name"
+              placeholder="Nombre"
               required
               className="form-input"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="email" className="form-label">Email</label>
+            <label htmlFor="email" className="form-label">Correo electrónico</label>
             <input
               id="email"
               name="email"
               type="email"
               value={form.email}
               onChange={handleChange}
-              placeholder="Email"
+              placeholder="Correo electrónico"
               required
               className="form-input"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password" className="form-label">Password (leave blank to keep current)</label>
+            <label htmlFor="password" className="form-label">Contraseña (dejar en blanco para mantener la actual)</label>
             <input
               id="password"
               name="password"
               type="password"
               value={form.password}
               onChange={handleChange}
-              placeholder="Password"
+              placeholder="Contraseña"
               className="form-input"
             />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="role_id" className="form-label">Rol</label>
+            <select
+              id="role_id"
+              name="role_id"
+              value={form.role_id}
+              onChange={handleChange}
+              className="form-select"
+            >
+              <option value="">Usuario</option>
+              {roles.map((role) => (
+                <option key={role.id} value={role.id}>
+                  {role.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="button-group">
@@ -130,7 +174,7 @@ const UserEdit = () => {
               className="btn btn-update"
               disabled={loading}
             >
-              Update User
+              {id ? 'Actualizar usuario' : 'Crear usuario'}
             </button>
             <button
               type="button"
@@ -138,7 +182,7 @@ const UserEdit = () => {
               className="btn btn-cancel"
               disabled={loading}
             >
-              Cancel
+              Cancelar
             </button>
           </div>
         </form>
