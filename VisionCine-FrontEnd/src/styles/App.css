@@ -17,36 +17,6 @@ body {
   padding: 2rem;
 }
 
-.navbar {
-  background-color: #1f1f1f;
-  padding: 1rem;
-  color: #e0e0e0;
-  margin-bottom: 2rem;
-}
-
-.navbar ul {
-  display: flex;
-  justify-content: center;
-  list-style: none;
-}
-
-.navbar li {
-  margin-right: 2rem;
-}
-
-.navbar li:last-child {
-  margin-right: 0;
-}
-
-.navbar a {
-  color: #e0e0e0;
-  text-decoration: none;
-  font-size: 1.2rem;
-}
-
-.navbar a:hover {
-  color: #00c853;
-}
 
 h1 {
   font-size: 3rem;
@@ -162,12 +132,12 @@ h1 {
 }
 
 .action-buttons .watch-later {
-  background-color: #00c853;
+  background-color: #ffab00;
   color: #fff;
 }
 
 .action-buttons .watched {
-  background-color: #2e7d32;
+  background-color: #ffab00;
   color: #fff;
 }
 

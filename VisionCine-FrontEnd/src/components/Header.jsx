@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import '../styles/Header.css'; 
 
-const Header = ({ watchLaterList, watchedList }) => {
-  const { user } = useContext(AuthContext);
+const Header = () => {
+  const { user, isAdmin } = useContext(AuthContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const toggleDropdown = () => {
@@ -29,11 +29,15 @@ const Header = ({ watchLaterList, watchedList }) => {
               </button>
               {dropdownOpen && (
                 <div className={`dropdown-content show`}>
-                  <Link to="/home" onClick={() => setDropdownOpen(false)}>Inicio</Link>
-                  <Link to="/movies-crud" onClick={() => setDropdownOpen(false)}>Gestión de Películas</Link>
-                  <Link to="/users-crud" onClick={() => setDropdownOpen(false)}>Gestión de Usuarios</Link>
-                  <Link to="/watch-later" onClick={() => setDropdownOpen(false)}>Ver Más Tarde ({watchLaterList.length})</Link>
-                  <Link to="/watched" onClick={() => setDropdownOpen(false)}>Vistas ({watchedList.length})</Link>
+                  <Link to="/" onClick={() => setDropdownOpen(false)}>Inicio</Link>
+                  {isAdmin() && (
+                    <>
+                      <Link to="/admin/movies" onClick={() => setDropdownOpen(false)}>Gestión de Películas</Link>
+                      <Link to="/admin/users" onClick={() => setDropdownOpen(false)}>Gestión de Usuarios</Link>
+                    </>
+                  )}
+                  <Link to="/watch-later" onClick={() => setDropdownOpen(false)}>Ver Después</Link>
+                  <Link to="/watched" onClick={() => setDropdownOpen(false)}>Vistas</Link>
                   <Link to="/profile" onClick={() => setDropdownOpen(false)}>Perfil</Link>
                   <Link to="/search" onClick={() => setDropdownOpen(false)}>Buscar</Link>
                   <Link to="/popular-movies" onClick={() => setDropdownOpen(false)}>Películas Populares</Link>
@@ -50,7 +54,10 @@ const Header = ({ watchLaterList, watchedList }) => {
         </ul>
 
         <ul className="navbar-center">
-          <li className="title">VisionCine</li>
+          <li className="title">
+            <img src="/assets/icon.png" alt="Icono VisionCine" style={{ height: '24px', marginRight: '8px', verticalAlign: 'middle' }} />
+            VisionCine
+          </li>
         </ul>
 
         <ul className="navbar-right">

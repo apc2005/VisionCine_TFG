@@ -6,11 +6,11 @@ const RootRedirect = () => {
   const { user, loading } = useContext(AuthContext);
 
   if (loading) {
-    return null; // or a loading spinner component
+    return null; 
   }
 
   if (user) {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/" replace />;
   } else {
     return <Navigate to="/login" replace />;
   }

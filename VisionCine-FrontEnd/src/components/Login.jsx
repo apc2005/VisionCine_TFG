@@ -27,7 +27,7 @@ const LoginForm = () => {
   
       if (response.data.access_token) {
         console.log('Login exitoso', {email});
-        await login(response.data.access_token, response.data.user); // Pasar token y usuario por separado al AuthContext
+        await login(response.data.access_token, response.data.user);
         navigate('/');
       } else {
         console.log('Error: No se recibió token del servidor');

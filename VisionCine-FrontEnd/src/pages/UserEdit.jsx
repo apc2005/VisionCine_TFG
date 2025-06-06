@@ -90,7 +90,7 @@ const UserEdit = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
       }
-      navigate('/users-crud', { replace: true });
+      navigate('/admin/users', { replace: true });
     } catch (err) {
       console.error('Save user error:', err);
       const message =
@@ -178,7 +178,7 @@ const UserEdit = () => {
             </button>
             <button
               type="button"
-              onClick={() => navigate('/users-crud')}
+              onClick={() => navigate('/admin/users')}
               className="btn btn-cancel"
               disabled={loading}
             >

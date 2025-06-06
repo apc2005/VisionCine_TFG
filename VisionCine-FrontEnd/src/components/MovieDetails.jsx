@@ -7,7 +7,7 @@ import {
   removeFavorite, 
   addToWatchLater, 
   removeFromWatchLater, 
-  addToWatched, 
+  addToWatched,  
   removeFromWatched,
   api
 } from '../api/backendApi';
@@ -30,6 +30,7 @@ const MovieDetails = ({ movie }) => {
         const movieId = movie.id;
         const { data } = await api.get(`/reviews/movie/${movieId}`);
         setReviews(data);
+        setSubmitted(false);
       } catch (error) {
         console.error('Error:', error);
       }
@@ -38,22 +39,14 @@ const MovieDetails = ({ movie }) => {
     fetchReviews();
   }, [movie.id, submitted]);
 
-  // Added useEffect to refresh watchLater and watched lists on mount or movie change
-  useEffect(() => {
-    if (authToken) {
-      refreshWatchLater();
-      refreshWatched();
-    }
-  }, [authToken, movie.id, refreshWatchLater, refreshWatched]);
-
   useEffect(() => {
     if (!authToken) return;
 
-    const movieId = movie.id;
-    setIsFavorite(favorites.some(fav => fav.id === movieId));
-    setIsWatchLater(watchLater.some(item => item.id === movieId));
-    setIsWatched(watched.some(item => item.id === movieId));
-  }, [favorites, watchLater, watched, movie.id, authToken]);
+    const movieTmdbId = movie.tmdb_id;
+    setIsFavorite(favorites.some(fav => fav.tmdb_id === movieTmdbId));
+    setIsWatchLater(watchLater.some(item => item.tmdb_id === movieTmdbId));
+    setIsWatched(watched.some(item => item.tmdb_id === movieTmdbId));
+  }, [favorites, watchLater, watched, movie.tmdb_id, authToken]);
 
   const handleRatingChange = (newRating) => {
     setRating(newRating);
@@ -64,7 +57,7 @@ const MovieDetails = ({ movie }) => {
 
     try {
       const response = await api.post('/reviews', {
-        movie_id: movie.id,
+        tmdb_id: movie.tmdb_id,
         rating: rating,
         comment: comment
       });
@@ -78,7 +71,17 @@ const MovieDetails = ({ movie }) => {
       setRating(1);
     } catch (error) {
       console.error('Error:', error);
-      Swal.fire('Error', 'Error al enviar la reseña', 'error');
+      if (error.response && error.response.status === 422) {
+        const errors = error.response.data.errors;
+        const messages = Object.values(errors).flat().join('<br/>');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error de validación',
+          html: messages
+        });
+      } else {
+        Swal.fire('Error', 'Error al enviar la reseña', 'error');
+      }
     }
   };
 
@@ -89,23 +92,40 @@ const MovieDetails = ({ movie }) => {
     }
 
     try {
-      const movieId = movie.id;
+      const movieId = Number(movie.id);
       if (isFavorite) {
-        await removeFavorite(movieId);
-        Swal.fire('Éxito', 'Película eliminada de favoritas', 'success');
+        const result = await Swal.fire({
+          title: '¿Quitar de favoritas?',
+          text: '¿Estás seguro de que quieres quitar esta película de tu lista?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, quitar',
+          cancelButtonText: 'Cancelar'
+        });
+        if (result.isConfirmed) {
+          await removeFavorite(movieId);
+          await refreshFavorites();
+          setIsFavorite(false);
+          Swal.fire('Éxito', 'Película eliminada de favoritas', 'success');
+        }
       } else {
         if (favorites.length >= 3) {
           Swal.fire('Atención', 'Solo puedes tener hasta 3 películas favoritas', 'warning');
           return;
         }
         await addFavorite(movieId);
+        await refreshFavorites();
+        setIsFavorite(true);
         Swal.fire('Éxito', 'Película agregada a favoritas', 'success');
       }
-
-      refreshFavorites();
     } catch (error) {
       console.error('Error al actualizar favoritas:', error);
-      Swal.fire('Error', 'Error al actualizar favoritas', 'error');
+      if (error.response && error.response.status === 400) {
+        setIsFavorite(true);
+        Swal.fire('Atención', 'La película ya está en tu lista de favoritas', 'info');
+      } else {
+        Swal.fire('Error', 'Error al actualizar favoritas', 'error');
+      }
     }
   };
 
@@ -116,19 +136,34 @@ const MovieDetails = ({ movie }) => {
     }
 
     try {
-      const movieId = movie.id;
+      const movieId = Number(movie.id);
       if (isWatchLater) {
-        await removeFromWatchLater(String(movieId));
-        Swal.fire('Éxito', 'Película eliminada de ver después', 'success');
+        const result = await Swal.fire({
+          title: '¿Quitar de ver después?',
+          text: '¿Estás seguro de que quieres quitar esta película de tu lista?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, quitar',
+          cancelButtonText: 'Cancelar'
+        });
+        if (result.isConfirmed) {
+          await removeFromWatchLater(movieId);
+          await refreshWatchLater();
+          setIsWatchLater(false);
+          Swal.fire('Éxito', 'Película eliminada de ver después', 'success');
+        }
       } else {
-        await addToWatchLater(String(movieId));
+        await addToWatchLater(movieId);
+        await refreshWatchLater();
+        setIsWatchLater(true);
         Swal.fire('Éxito', 'Película agregada a ver después', 'success');
       }
-      refreshWatchLater();
     } catch (error) {
       console.error('Error al actualizar ver después:', error);
+      console.error('Detalles del error:', error.response ? error.response.data : error.message);
       if (error.response && error.response.status === 400) {
-        console.warn('La película ya está en tu lista de ver más tarde');
+        setIsWatchLater(true);
+        Swal.fire('Atención', 'La película ya está en tu lista de ver después', 'info');
       } else {
         Swal.fire('Error', 'Error al actualizar ver después', 'error');
       }
@@ -142,18 +177,36 @@ const MovieDetails = ({ movie }) => {
     }
 
     try {
-      const movieId = movie.id;
+      const movieId = Number(movie.id);
       if (isWatched) {
-        await removeFromWatched(movieId);
-        Swal.fire('Éxito', 'Película desmarcada como vista', 'success');
+        const result = await Swal.fire({
+          title: '¿Quitar de vistas?',
+          text: '¿Estás seguro de que quieres quitar esta película de tu lista?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, quitar',
+          cancelButtonText: 'Cancelar'
+        });
+        if (result.isConfirmed) {
+          await removeFromWatched(movieId);
+          await refreshWatched();
+          setIsWatched(false);
+          Swal.fire('Éxito', 'Película desmarcada como vista', 'success');
+        }
       } else {
         await addToWatched(movieId);
+        await refreshWatched();
+        setIsWatched(true);
         Swal.fire('Éxito', 'Película marcada como vista', 'success');
       }
-      refreshWatched();
     } catch (error) {
       console.error('Error al actualizar visto:', error);
-      Swal.fire('Error', 'Error al actualizar visto', 'error');
+      if (error.response && error.response.status === 400) {
+        setIsWatched(true);
+        Swal.fire('Atención', 'La película ya está en tu lista de vistas', 'info');
+      } else {
+        Swal.fire('Error', 'Error al actualizar visto', 'error');
+      }
     }
   };
 
@@ -213,7 +266,7 @@ const MovieDetails = ({ movie }) => {
           </div>
         )}
         <div className="existing-reviews">
-          <h3>Reseñas de otros usuarios</h3>
+          <h3>Reseñas</h3>
           {reviews.length > 0 ? (
             reviews.map(review => (
               <div key={review.id} className="review-item">

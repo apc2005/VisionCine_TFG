@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import MovieDetails from '../components/MovieDetails';
 
-const MoviePage = ({ addToWatched, goBackToList }) => {
+const MoviePage = ({ goBackToList }) => {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -46,7 +46,6 @@ const MoviePage = ({ addToWatched, goBackToList }) => {
       <button onClick={goBackToList}>Volver a la lista</button>
       <MovieDetails 
         movie={movie} 
-        addToWatched={addToWatched} 
       />
     </div>
   );

@@ -58,9 +58,14 @@ export const login = async (credentials) => {
   }
 };
 
-export const fetchMovies = async () => {
+export const fetchMovies = async (page = 1, perPage = 10) => {
   try {
-    const { data } = await api.get('/movies');
+    const { data } = await api.get('/movies', {
+      params: {
+        page,
+        per_page: perPage
+      }
+    });
     return data;
   } catch (error) {
     console.error('Error al obtener películas:', error);

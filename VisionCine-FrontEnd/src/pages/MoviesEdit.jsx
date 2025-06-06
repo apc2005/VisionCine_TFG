@@ -85,7 +85,7 @@ const MoviesEdit = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
       }
-      navigate('/movies-crud', { replace: true });
+      navigate('/admin/movies', { replace: true });
     } catch (err) {
       console.error('Save movie error:', err);
       const message =
@@ -182,7 +182,7 @@ const MoviesEdit = () => {
             </button>
             <button
               type="button"
-              onClick={() => navigate('/movies-crud')}
+              onClick={() => navigate('/admin/movies')}
               className="btn btn-cancel"
               disabled={loading}
             >

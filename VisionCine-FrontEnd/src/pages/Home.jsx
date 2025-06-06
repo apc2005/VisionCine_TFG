@@ -8,7 +8,7 @@ import Carousel from "../components/Carrousel";
 import Footer from "../components/Footer";
 
 const Home = () => {
-  const { data: backendMoviesData, isLoading: backendLoading, error: backendError } = useMovies();
+  const { data: backendMoviesData, isLoading: backendLoading, error: backendError } = useMovies(1, 5);
   const { data: popularMoviesData, isLoading: popularLoading, error: popularError } = usePopularMovies();
   const navigate = useNavigate();
 
@@ -71,7 +71,7 @@ const Home = () => {
         </div>
       </section>
 
-      <MovieList movies={topBackendMovies} onMovieSelect={handleMovieClick} title="Tus Top 5 Películas" />
+      <MovieList movies={topBackendMovies} onMovieSelect={handleMovieClick} title="Top 5 Películas" titleClassName="movie-list-title" />
 
       <Footer />
     </div>

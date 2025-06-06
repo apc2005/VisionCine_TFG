@@ -31,7 +31,7 @@ class WatchLaterController extends Controller
 
         $exists = WatchLaterMovie::where('user_id', $user->id)->where('movie_id', $movieId)->exists();
         if ($exists) {
-            return response()->json(['message' => 'La película ya está en tu lista de ver más tarde'], 400);
+            return response()->json(['message' => 'La película ya está en tu lista de ver despues'], 400);
         }
 
         $watchLater = WatchLaterMovie::create([
@@ -52,11 +52,11 @@ class WatchLaterController extends Controller
 
         $watchLater = WatchLaterMovie::where('user_id', $user->id)->where('movie_id', $movieId)->first();
         if (!$watchLater) {
-            return response()->json(['message' => 'La película no está en tu lista de ver más tarde'], 404);
+            return response()->json(['message' => 'La película no está en tu lista de ver después'], 404);
         }
 
         $watchLater->delete();
 
-        return response()->json(['message' => 'Película eliminada de la lista de ver más tarde']);
+        return response()->json(['message' => 'Película eliminada de la lista de ver después']);
     }
 }

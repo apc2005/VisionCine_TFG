@@ -33,6 +33,13 @@ class User extends Authenticatable
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['role_name'];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -53,5 +60,10 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function getRoleNameAttribute()
+    {
+        return $this->role ? $this->role->name : null;
     }
 }

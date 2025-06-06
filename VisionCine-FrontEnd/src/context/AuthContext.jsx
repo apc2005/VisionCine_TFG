@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [watchLater, setWatchLater] = useState([]);
   const [watched, setWatched] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [loadUserLists, setLoadUserLists] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -16,9 +17,7 @@ export const AuthProvider = ({ children }) => {
       getProfileData()
         .then(userData => {
           setUser({ token, ...userData });
-          refreshFavorites();
-          refreshWatchLater();
-          refreshWatched();
+          setLoadUserLists(true);
           refreshReviews();
         })
         .catch(error => {
@@ -26,6 +25,14 @@ export const AuthProvider = ({ children }) => {
         });
     }
   }, []);
+
+  useEffect(() => {
+    if (loadUserLists) {
+      refreshFavorites();
+      refreshWatchLater();
+      refreshWatched();
+    }
+  }, [loadUserLists]);
 
   const login = async (token, userData) => {
     localStorage.setItem('token', token);
@@ -49,48 +56,30 @@ export const AuthProvider = ({ children }) => {
   };
 
   const refreshFavorites = async () => {
-    if (!user?.token) return;
+    if (!user?.token || !loadUserLists) return;
     try {
       const favs = await fetchUserFavorites();
-      const detailedFavs = await Promise.all(
-        favs.map(async (fav) => {
-          const movieDetails = await fetchMovieDetails(fav.movie_id);
-          return movieDetails;
-        })
-      );
-      setFavorites(detailedFavs);
+      setFavorites(favs);
     } catch (error) {
       console.error('Error refreshing favorites:', error);
     }
   };
 
   const refreshWatchLater = async () => {
-    if (!user?.token) return;
+    if (!user?.token || !loadUserLists) return;
     try {
       const { data } = await api.get('/watch-later');
-      const detailedWatchLater = await Promise.all(
-        data.map(async (item) => {
-          const movieDetails = await fetchMovieDetails(item.movie_id);
-          return movieDetails;
-        })
-      );
-      setWatchLater(detailedWatchLater);
+      setWatchLater(data);
     } catch (error) {
       console.error('Error refreshing watch later:', error);
     }
   };
 
   const refreshWatched = async () => {
-    if (!user?.token) return;
+    if (!user?.token || !loadUserLists) return;
     try {
       const { data } = await api.get('/watched');
-      const detailedWatched = await Promise.all(
-        data.map(async (item) => {
-          const movieDetails = await fetchMovieDetails(item.movie_id);
-          return movieDetails;
-        })
-      );
-      setWatched(detailedWatched);
+      setWatched(data);
     } catch (error) {
       console.error('Error refreshing watched:', error);
     }
@@ -106,9 +95,8 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Helper to check if user is admin
   const isAdmin = () => {
-    return user?.role === 'admin';
+    return user?.role_name === 'admin';
   };
 
   return (

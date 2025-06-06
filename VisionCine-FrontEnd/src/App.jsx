@@ -39,13 +39,13 @@ function App() {
 
   return (
     <div className="app">
-      {!shouldHideHeader && <Header watchLaterList={watchLaterList} watchedList={watchedList} />}
+      {!shouldHideHeader && <Header />}
 
       <main>
         <Routes>
           <Route path="/movie/:id" element={
             <MoviePage 
-              addToWatchLater={saveToWatchLater} 
+              addToWatchLater={saveToWatchLater}
               addToWatched={markAsWatched} 
               goBackToList={() => navigate('/popular-movies')} 
             />
@@ -72,38 +72,38 @@ function App() {
               <PopularMovies popularMovies={{ pages: [{ results: searchResults }] }} onMovieSelect={handleMovieSelect} />
             </ProtectedRoute>
           } />
-          <Route path="/home" element={
+          <Route path="/" element={
             <ProtectedRoute>
               <Home onMovieSelect={handleMovieSelect} />
             </ProtectedRoute>
           } />
-          <Route path="/movies-crud" element={
-            <ProtectedRoute>
+          <Route path="/admin/movies" element={
+            <ProtectedRoute requiredRole="admin">
               <MoviesCRUD />
             </ProtectedRoute>
           } />
           <Route path="/movies/edit/:id" element={
-            <ProtectedRoute>
+            <ProtectedRoute requiredRole="admin">
               <MoviesEdit />
             </ProtectedRoute>
           } />
           <Route path="/movies/edit" element={
-            <ProtectedRoute>
+            <ProtectedRoute requiredRole="admin">
               <MoviesEdit />
             </ProtectedRoute>
           } />
-          <Route path="/users-crud" element={
-            <ProtectedRoute>
+          <Route path="/admin/users" element={
+            <ProtectedRoute requiredRole="admin">
               <UsersCRUD />
             </ProtectedRoute>
           } />
           <Route path="/users/edit/:id" element={
-            <ProtectedRoute>
+            <ProtectedRoute requiredRole="admin">
               <UserEdit />
             </ProtectedRoute>
           } />
           <Route path="/users/edit" element={
-            <ProtectedRoute>
+            <ProtectedRoute requiredRole="admin">
               <UserEdit />
             </ProtectedRoute>
           } />

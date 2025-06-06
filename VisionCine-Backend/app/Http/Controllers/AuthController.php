@@ -83,6 +83,7 @@ class AuthController extends Controller
             Log::warning('Unauthorized access attempt to AuthController@profile');
             return response()->json(['message' => 'Unauthorized'], 401);
         }
+        $user->load('role');
         return response()->json($user);
     }
 }
