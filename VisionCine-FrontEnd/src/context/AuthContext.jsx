@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useCallback } from 'react';
 import { fetchUserFavorites, fetchMovieDetails, api, getProfileData } from '../api/backendApi';
 
 export const AuthContext = createContext();
@@ -55,15 +55,22 @@ export const AuthProvider = ({ children }) => {
     setReviews([]);
   };
 
-  const refreshFavorites = async () => {
+  const refreshFavorites = useCallback(async () => {
     if (!user?.token || !loadUserLists) return;
     try {
       const favs = await fetchUserFavorites();
-      setFavorites(favs);
+      // Fetch full movie details for each favorite
+      const detailedFavs = await Promise.all(
+        favs.map(async (fav) => {
+          const movieDetails = await fetchMovieDetails(fav.movie_id);
+          return movieDetails;
+        })
+      );
+      setFavorites(detailedFavs);
     } catch (error) {
       console.error('Error refreshing favorites:', error);
     }
-  };
+  }, [user?.token, loadUserLists]);
 
   const refreshWatchLater = async () => {
     if (!user?.token || !loadUserLists) return;
